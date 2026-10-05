@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PedrosCantina/PedrosCantina.csproj" />
+  <Project Path="PedrosCantinaLibrary/PedrosCantinaLibrary.csproj" />
+</Solution>

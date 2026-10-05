@@ -1,0 +1,126 @@
+﻿@page "{date?}"
+@model PedrosCantina.Pages.Schedule.DayModel
+@{
+    ViewData["Title"] = "Dagsplan";
+}
+
+@if (Model.DayPlan == null)
+{
+    <div class="alert alert-danger">
+        Kunne ikke finde dagsplanen for den valgte dato.
+        <a asp-page="/Schedule/Monthly" class="btn btn-outline-secondary ms-2">Tilbage til Månedsplan</a>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <!-- Overskrift & Navigation -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>Dagsplan: @Model.DayPlan.Date.ToString("dddd d. MMMM yyyy", new System.Globalization.CultureInfo("da-DK"))</h2>
+                <a asp-page="/Schedule/Monthly" asp-route-year="@Model.DayPlan.Year" asp-route-month="@Model.DayPlan.Month" class="btn btn-outline-secondary btn-sm mt-1">
+                    &larr; Tilbage til Månedsplan
+                </a>
+            </div>
+            <div>
+                @if (Model.DayPlan.IsRequirementsMet())
+                {
+                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle"></i> Alle bemandingskrav er opfyldt</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark fs-6"><i class="bi bi-exclamation-triangle"></i> Kravene er IKKE opfyldt endnu</span>
+                }
+            </div>
+        </div>
+
+        <!-- Note Sektion -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <form method="post" asp-page-handler="SaveNote" asp-route-date="@Model.DayPlan.Date.ToString("yyyy-MM-dd")">
+                    <div class="mb-2">
+                        <label asp-for="Note" class="form-label fw-bold">Note for dagen:</label>
+                        <input asp-for="Note" class="form-control" placeholder="f.eks. Særlig event, ekstra travlt..." />
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Gem Note</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Vagter (Formiddag og Aften) -->
+        <div class="row">
+            @foreach (var shift in Model.DayPlan.Shifts)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm border-top border-4 @(shift.IsValid() ? "border-success" : "border-danger")">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                @(shift.Type == PedrosCantinaLibrary.Model.ShiftType.Morning ? "☀️ Formiddagsvagt" : "🌙 Aftenvagt")
+                            </h5>
+                            @if (shift.IsValid())
+                            {
+                                <span class="badge bg-success">Godkendt</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Mangler bemanding/leder</span>
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h6>Tildelte medarbejdere (@shift.Employees.Count / 2-3):</h6>
+
+                            @if (shift.Employees.Count == 0)
+                            {
+                                <p class="text-muted italic">Ingen medarbejdere tilføjet endnu.</p>
+                            }
+                            else
+                            {
+                                <ul class="list-group mb-3">
+                                    @foreach (var emp in shift.Employees)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>@emp.FirstName @emp.LastName</strong>
+                                                @if (emp.CanActAsLeader)
+                                                {
+                                                    <span class="badge bg-info text-dark ms-1">Leder</span>
+                                                }
+                                            </div>
+                                            <form method="post" asp-page-handler="RemoveEmployee"
+                                                  asp-route-date="@Model.DayPlan.Date.ToString("yyyy-MM-dd")"
+                                                  asp-route-shiftId="@shift.Id"
+                                                  asp-route-employeeId="@emp.Id" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Fjern</button>
+                                            </form>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            <!-- Tilføj medarbejder formular -->
+                            <hr />
+                            <form method="post" asp-page-handler="AddEmployee"
+                                  asp-route-date="@Model.DayPlan.Date.ToString("yyyy-MM-dd")"
+                                  asp-route-shiftId="@shift.Id" class="row g-2">
+                                <div class="col-8">
+                                    <select asp-for="SelectedEmployeeId" class="form-select form-select-sm" required>
+                                        <option value="">-- Vælg medarbejder --</option>
+                                        @foreach (var emp in Model.AllEmployees)
+                                        {
+                                            <option value="@emp.Id">
+                                                @emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Leder)" : "")
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="btn btn-sm btn-success w-100">Tilføj</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

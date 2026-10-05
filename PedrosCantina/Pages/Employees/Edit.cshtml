@@ -1,0 +1,103 @@
+﻿@page "{id}" 
+@model PedrosCantina.Pages.Employees.EditModel
+@{
+    ViewData["Title"] = "Rediger Medarbejder - Pedro's Cantina";
+}
+@*Bemærk: øverst, id. Dette fortæller ASP.NET Core, at denne side forventer et id i ruten (f.eks. /Employees/Edit/GUID-HER). *@
+
+<div class="container py-4" style="max-width: 760px;">
+    <!-- Tilbage knap -->
+    <div class="mb-3">
+        <a asp-page="/Employees/Index" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i> Tilbage til medarbejderoversigt
+        </a>
+    </div>
+
+    <!-- Overskrift -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: var(--cantina-dark);">Rediger Medarbejder</h2>
+            <p class="text-muted mb-0">Ret oplysninger for <strong>@Model.Employee.FirstName @Model.Employee.LastName</strong></p>
+        </div>
+    </div>
+
+    <!-- Formularkort -->
+    <div class="cantina-card p-4">
+        <form method="post">
+            <!-- VIGTIGT: Skjult felt der bevarer ID under POST -->
+            <input type="hidden" asp-for="Employee.Id" />
+
+            <!-- Valideringsfejl på tværs af formularen -->
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+            <div class="row g-3">
+                <!-- Fornavn & Efternavn -->
+                <div class="col-md-6">
+                    <label asp-for="Employee.FirstName" class="form-label fw-bold small">Fornavn *</label>
+                    <input asp-for="Employee.FirstName" class="form-control" required />
+                    <span asp-validation-for="Employee.FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.LastName" class="form-label fw-bold small">Efternavn *</label>
+                    <input asp-for="Employee.LastName" class="form-control" required />
+                    <span asp-validation-for="Employee.LastName" class="text-danger small"></span>
+                </div>
+
+                <!-- E-mail & Telefon -->
+                <div class="col-md-6">
+                    <label asp-for="Employee.Email" class="form-label fw-bold small">E-mail *</label>
+                    <input asp-for="Employee.Email" type="email" class="form-control" required />
+                    <span asp-validation-for="Employee.Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Employee.PhoneNumber" class="form-label fw-bold small">Telefonnummer *</label>
+                    <input asp-for="Employee.PhoneNumber" class="form-control" required />
+                    <span asp-validation-for="Employee.PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <!-- Adresse -->
+                <div class="col-md-12">
+                    <label asp-for="Employee.Address" class="form-label fw-bold small">Adresse (Valgfri)</label>
+                    <input asp-for="Employee.Address" class="form-control" placeholder="Gadenavn 12, 1. th" />
+                    <span asp-validation-for="Employee.Address" class="text-danger small"></span>
+                </div>
+
+                <!-- Betalingsoplysninger -->
+                <div class="col-md-12">
+                    <label asp-for="Employee.PaymentInfo" class="form-label fw-bold small">Betalingsoplysninger (Valgfri)</label>
+                    <input asp-for="Employee.PaymentInfo" class="form-control" placeholder="Reg: 1234 Konto: 123456789" />
+                    <span asp-validation-for="Employee.PaymentInfo" class="text-danger small"></span>
+                </div>
+
+                <!-- Vagtansvarlig Switch -->
+                <div class="col-md-12 mt-4">
+                    <div class="p-3 border rounded-3 bg-light d-flex align-items-center justify-content-between gap-3">
+                        <div>
+                            <label class="fw-bold mb-0" for="leaderSwitch" style="cursor: pointer;">
+                                Kan fungere som Shift Leader (Vagtansvarlig)
+                            </label>
+                            <div class="text-muted small">
+                                Markér hvis medarbejderen har tilladelse til at være ansvarlig på vagter.
+                            </div>
+                        </div>
+                        <div class="form-check form-switch mb-0 fs-4">
+                            <input asp-for="Employee.CanActAsLeader" class="form-check-input" type="checkbox" role="switch" id="leaderSwitch">
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Knapper -->
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-page="/Employees/Index" class="btn btn-outline-secondary px-4">Annuller</a>
+                <button type="submit" class="btn btn-cantina-primary px-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-save"></i>
+                    <span>Gem ændringer</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

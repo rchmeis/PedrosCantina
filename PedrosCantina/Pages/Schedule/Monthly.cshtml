@@ -1,0 +1,237 @@
+﻿@page
+@model PedrosCantina.Pages.Schedule.MonthlyModel
+@{
+    ViewData["Title"] = "Månedsplan";
+    var nextMonth = Model.Month == 12 ? 1 : Model.Month + 1;
+    var nextYear = Model.Month == 12 ? Model.Year + 1 : Model.Year;
+    var prevMonth = Model.Month == 1 ? 12 : Model.Month - 1;
+    var prevYear = Model.Month == 1 ? Model.Year - 1 : Model.Year;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h2 class="text-cantina-dark fw-bold mb-3">Vagtplan: @Model.Month / @Model.Year</h2>
+        <!-- Navigation -->
+        <div>
+            <a asp-page="./Monthly" asp-route-year="@prevYear" asp-route-month="@prevMonth" asp-route-employeeId="@Model.EmployeeId" class="btn btn-outline-secondary me-2">Forrige</a>
+            <a asp-page="./Monthly" asp-route-year="@nextYear" asp-route-month="@nextMonth" asp-route-employeeId="@Model.EmployeeId" class="btn btn-outline-secondary">Næste</a>
+        </div>
+    </div>
+
+    <!-- KRAV 3.2: Belastnings-bokse øverst til højre (Vises KUN når en medarbejder er valgt) -->
+    @if (Model.SelectedEmployee != null)
+    {
+        <div class="d-flex gap-3">
+            <div class="cantina-card p-3 border-top border-4 border-primary text-center">
+                <span class="text-muted small d-block">@Model.SelectedEmployee.FirstName's vagter (@Model.Month)</span>
+                <h3 class="fw-bold text-cantina-dark mb-0">@Model.MonthlyWorkload</h3>
+            </div>
+            <div class="cantina-card p-3 border-top border-4 border-info text-center">
+                <span class="text-muted small d-block">Vagter i alt (@Model.Year)</span>
+                <h3 class="fw-bold text-cantina-dark mb-0">@Model.YearlyWorkload</h3>
+            </div>
+            <!-- Knap til at fjerne filter og gå tilbage til Admin overblik -->
+            <a asp-page="./Monthly" asp-route-year="@Model.Year" asp-route-month="@Model.Month" class="btn btn-outline-danger align-self-center ms-2" title="Fjern filter">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+    }
+</div>
+
+@if (Model.Plan == null)
+{
+    <div class="cantina-card text-center p-5">
+        <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+        <h4 class="mt-3">Ingen vagtplan for denne måned</h4>
+        <p class="text-muted">Pedro har endnu ikke oprettet vagtplanen for @Model.Month/@Model.Year.</p>
+
+        <form method="post" asp-page-handler="CreatePlan">
+            <input type="hidden" name="Year" value="@Model.Year" />
+            <input type="hidden" name="Month" value="@Model.Month" />
+            <button type="submit" class="btn btn-primary btn-lg mt-3">
+                <i class="bi bi-magic me-2"></i> Opret Vagtplan nu
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <!-- Kalender Grid -->
+    <div class="calendar-grid">
+        <!-- Ugedage (Mandag-Søndag) -->
+        <div class="fw-bold text-center p-2 border-bottom">Man</div>
+        <div class="fw-bold text-center p-2 border-bottom">Tir</div>
+        <div class="fw-bold text-center p-2 border-bottom">Ons</div>
+        <div class="fw-bold text-center p-2 border-bottom">Tor</div>
+        <div class="fw-bold text-center p-2 border-bottom">Fre</div>
+        <div class="fw-bold text-center p-2 border-bottom">Lør</div>
+        <div class="fw-bold text-center p-2 border-bottom">Søn</div>
+
+        @{
+            int daysInMonth = DateTime.DaysInMonth(Model.Year, Model.Month);
+            DateTime firstDay = new DateTime(Model.Year, Model.Month, 1);
+            int startDayOfWeek = firstDay.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)firstDay.DayOfWeek;
+
+            for (int i = 1; i < startDayOfWeek; i++)
+            {
+                <div class="calendar-day empty"></div>
+            }
+
+            // Loop igennem alle dage i databasen
+            foreach (var day in Model.Plan.DayPlans.OrderBy(d => d.Date))
+            {
+                string dateStr = day.Date.ToString("yyyy-MM-dd");
+                bool isDayValid = day.IsRequirementsMet();
+
+                // --- FARVER OG PRIKKER ---
+                string bgClass = "bg-white";
+                bool hasMorning = false;
+                bool hasAfternoon = false;
+
+                if (Model.SelectedEmployee == null)
+                {
+                    // Admin-tilstand farver
+                    bgClass = isDayValid ? "bg-success bg-opacity-10 border-success" : "bg-danger bg-opacity-10 border-danger";
+                }
+                else
+                {
+                    // Medarbejder-tilstand farver og udregning af vagter
+                    var mShift = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
+                    var aShift = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
+
+                    if (mShift != null) hasMorning = mShift.Employees.Any(e => e.Id == Model.EmployeeId);
+                    if (aShift != null) hasAfternoon = aShift.Employees.Any(e => e.Id == Model.EmployeeId);
+
+                    if (hasMorning || hasAfternoon) bgClass = "bg-primary bg-opacity-10 border-primary";
+                }
+
+                <a asp-page="./Day" asp-route-date="@dateStr" asp-route-employeeId="@Model.EmployeeId"
+                   class="calendar-day @bgClass text-dark text-decoration-none border rounded p-2 d-flex flex-column position-relative">
+
+                    <span class="fw-bold">@day.Date.Day</span>
+
+                    @if (Model.SelectedEmployee != null)
+                    {
+                        <!-- MEDARBEJDER VISNING: Viser prikker -->
+                        if (hasMorning || hasAfternoon)
+                        {
+                            <div class="mt-auto d-flex gap-1 justify-content-center pb-1">
+                                @if (hasMorning)
+                                {
+                                    <div class="dot bg-info" title="Morgenvagt (09-14)"></div>
+                                }
+                                @if (hasAfternoon)
+                                {
+                                    <div class="dot bg-dark" title="Aftenvagt (14-19)"></div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <!-- ADMIN VISNING: Viser mangler / status -->
+                        if (isDayValid)
+                        {
+                            // Find vagterne for den pågældende dag
+                            var morning = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
+                            var afternoon = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
+
+                            int morningCount = morning?.Employees.Count ?? 0;
+                            int afternoonCount = afternoon?.Employees.Count ?? 0;
+                            
+                            <div class="mt-auto d-flex flex-column text-start text-success pb-1 px-1" style="font-size: 0.70rem; line-height: 1.3;">
+                                <!-- Flueben ikon (beholdes centreret i toppen af feltet) -->
+                                <div class="text-center w-100 mb-1">
+                                    <i class="bi bi-check-lg fs-5"></i>
+                                </div>
+
+                                <!-- Bemandingsantal (venstrestillet, så ikoner og tal flugter snorlige) -->
+                                <span class="fw-semibold text-truncate">
+                                    <i class="bi bi-sun me-1"></i>Morgen: @morningCount
+                                </span>
+                                <span class="fw-semibold text-truncate">
+                                    <i class="bi bi-moon me-1"></i>Aften: @afternoonCount
+                                </span>
+
+                                <!-- Note (starter præcis samme sted som ikonerne ovenover) -->
+                                @if (!string.IsNullOrWhiteSpace(day.Note))
+                                {
+                                    <span class="text-muted text-truncate fst-italic mt-1 border-top pt-1" title="@day.Note">
+                                        <i class="bi bi-chat-left-text me-1"></i>@day.Note
+                                    </span>
+                                }
+                            </div>
+                            // <div class="mt-auto d-flex flex-column text-center text-success pb-1" style="font-size: 0.70rem; line-height: 1.3;">
+                            //     <i class="bi bi-check-lg fs-4"></i>         
+                            //         <span>@foreach (@PedrosCantinaLibrary.Model.Shift shift in @day.Shifts) { <span> @shift.Employees.Count();</span>; }
+                            //         </span>
+                            //     <span class="text-truncate">@day.Note</span>
+                            // </div>
+                        }
+                        else
+                        {
+                            <div class="mt-auto d-flex flex-column" style="font-size: 0.70rem; line-height: 1.3;">
+                                <span class="fw-bold text-danger border-bottom border-danger mb-1 pb-1">Mangler:</span>
+                                @{
+                                    var m = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
+                                    var a = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
+
+                                    // Tjekker Morgenvagt
+                                    if (m == null || m.Employees.Count < 2)
+                                    {
+                                        <span class="text-danger text-truncate"><i class="bi bi-sun"></i> Morgen</span>
+                                    }
+                                    else if (!m.Employees.Any(e => e.CanActAsLeader))
+                                    {
+                                        <span class="text-danger text-truncate"><i class="bi bi-sun"></i> Morgen (leder)</span>
+                                    }
+
+                                    // Tjekker Aftenvagt
+                                    if (a == null || a.Employees.Count < 2)
+                                    {
+                                        <span class="text-danger text-truncate"><i class="bi bi-moon"></i> Aften</span>
+                                    }
+                                    else if (!a.Employees.Any(e => e.CanActAsLeader))
+                                    {
+                                        <span class="text-danger text-truncate"><i class="bi bi-moon"></i> Aften (leder)</span>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                </a>
+            }
+        }
+    </div>
+}
+
+<style>
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+    }
+
+    .calendar-day {
+        min-height: 110px; /* Gjort en smule højere for at give plads til teksten */
+        transition: all 0.2s ease;
+    }
+
+        .calendar-day.empty {
+            background-color: transparent !important;
+            border: none !important;
+        }
+
+        .calendar-day:not(.empty):hover {
+            border-color: var(--bs-primary) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+    .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+</style>
