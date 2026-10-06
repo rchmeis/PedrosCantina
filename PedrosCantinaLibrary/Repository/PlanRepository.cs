@@ -22,7 +22,7 @@ namespace PedrosCantinaLibrary.Repository
             try
             {                
                 string sqlMonth = "INSERT INTO MonthlyPlan (Year, Month, Status) VALUES (@Y, @M, @S)";
-                using (var cmd = new SqlCommand(sqlMonth, _db._connection, transaction))
+                using (SqlCommand cmd = new SqlCommand(sqlMonth, _db._connection, transaction))
                 {
                     cmd.Parameters.AddWithValue("@Y", plan.Year);
                     cmd.Parameters.AddWithValue("@M", plan.Month);
@@ -34,7 +34,7 @@ namespace PedrosCantinaLibrary.Repository
                 foreach (DayPlan day in plan.DayPlans)
                 {
                     string sqlDay = "INSERT INTO DayPlan (Date, Year, Month, Note) VALUES (@D, @Y, @M, @N)";
-                    using (var cmd = new SqlCommand(sqlDay, _db._connection, transaction))
+                    using (SqlCommand cmd = new SqlCommand(sqlDay, _db._connection, transaction))
                     {
                         cmd.Parameters.AddWithValue("@D", day.Date);
                         cmd.Parameters.AddWithValue("@Y", day.Year);
@@ -77,7 +77,7 @@ namespace PedrosCantinaLibrary.Repository
                 {
                     cmd.Parameters.AddWithValue("@Y", year);
                     cmd.Parameters.AddWithValue("@M", month);
-                    var statusObj = cmd.ExecuteScalar();
+                    var statusObj = cmd.ExecuteScalar(); //returns the first column of the first row in the result set returned by the query.
                     if (statusObj != null)
                     {
                         plan = new MonthlyPlan { Year = year, Month = month, Status = (PlanStatus)Convert.ToInt32(statusObj) };
@@ -91,8 +91,7 @@ namespace PedrosCantinaLibrary.Repository
             finally
             {
                 _db.Disconnect();
-            }     
-            
+            }                 
             return plan;
         }
 
@@ -104,7 +103,7 @@ namespace PedrosCantinaLibrary.Repository
 
             // Trin A: Hent Månedsplanen
             string sqlPlan = "SELECT Year, Month, Status FROM MonthlyPlan WHERE Year = @Y AND Month = @M";
-            using (var cmd = new SqlCommand(sqlPlan, _db._connection))
+            using (SqlCommand cmd = new SqlCommand(sqlPlan, _db._connection))
             {
                 cmd.Parameters.AddWithValue("@Y", year);
                 cmd.Parameters.AddWithValue("@M", month);

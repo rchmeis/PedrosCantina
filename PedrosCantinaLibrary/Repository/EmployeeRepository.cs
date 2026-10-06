@@ -120,7 +120,6 @@ namespace PedrosCantinaLibrary.Repository
                         {
                             return MapEmployee(reader);
                         }
-
                         throw new Exception($"Opdatering mislykkedes. Medarbejder med Id '{id}' blev ikke fundet");
                     }
                 }
@@ -151,7 +150,6 @@ namespace PedrosCantinaLibrary.Repository
                         {
                             return MapEmployee(reader);
                         }
-
                         throw new Exception($"Sletning mislykkedes. Medarbejder med Id '{id}' blev ikke fundet");
                     }
                 }

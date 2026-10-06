@@ -63,7 +63,7 @@ namespace PedrosCantinaLibrary.Repository
                             DateTime shiftDate = reader.GetDateTime(1);
                             ShiftType type = (ShiftType)Convert.ToByte(reader[2]); // Håndterer både TINYINT og INT
 
-                            if (!shiftDictionary.TryGetValue(shiftId, out var shift))  //her sørger vi for, at der kun laves et nyt shift objekt hvis det ikke findes i forvejen.
+                            if (!shiftDictionary.TryGetValue(shiftId, out Shift shift))  //her sørger vi for, at der kun laves et nyt shift objekt hvis det ikke findes i forvejen.
                             {
                                 shift = new Shift
                                 {
@@ -80,7 +80,7 @@ namespace PedrosCantinaLibrary.Repository
 
                             if (!reader.IsDBNull(3))
                             {
-                                var emp = new Employee
+                                Employee emp = new Employee
                                 {
                                     Id = reader.GetString(3),
                                     FirstName = reader.IsDBNull(4) ? "" : reader.GetString(4),
@@ -165,7 +165,7 @@ namespace PedrosCantinaLibrary.Repository
             try
             {
                 string sql = "UPDATE DayPlan SET Note = @Note WHERE Date = @Date";
-                using (var cmd = new SqlCommand(sql, _db._connection))
+                using (SqlCommand cmd = new SqlCommand(sql, _db._connection))
                 {
                     cmd.Parameters.AddWithValue("@Note", (object?)note ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@Date", date.Date);
