@@ -95,7 +95,7 @@ namespace PedrosCantinaLibrary.Repository
                 
             }
             catch (Exception ex){
-                throw new Exception("Fejl ved tilføjelse af shifts og medarbejdere til dagsplanen"+ ex.Message);
+                throw new Exception("Fejl ved tilføjelse af shifts og medarbejdere til dagsplanen", ex);
             }
             finally
             {
