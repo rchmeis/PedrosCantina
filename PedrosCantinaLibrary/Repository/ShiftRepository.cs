@@ -38,54 +38,54 @@ namespace PedrosCantinaLibrary.Repository
                 }
                 if (dayPlan == null)
                 {
-                    _db.Disconnect();
                     return null;
                 }
 
                 
                 string sqlShifts = @"
-                SELECT s.Id, s.Date, s.ShiftType, e.Id AS EmpId, e.FirstName, e.LastName, e.CanActAsLeader
+                SELECT s.Id as ShiftId, s.Date, s.ShiftType, 
+                       e.Id AS EmpId, e.FirstName, e.LastName, e.Email, e.PhoneNumber, e.Address, e.PaymentInfo, e.CanActAsLeader
                 FROM Shift s
                 LEFT JOIN ShiftEmployee se ON s.Id = se.ShiftId
                 LEFT JOIN Employee e ON se.EmployeeId = e.Id
                 WHERE s.Date = @Date";
 
-                var shiftDictionary = new Dictionary<int, Shift>();         //Dictionary bruges til at forhindre skabelse af mange shiftobjekter, da feks flere medarbejdere vil resulterer i flere rows med samme s.Id
+                Dictionary<int, Shift> shiftDictionary = new Dictionary<int, Shift>();         //Dictionary bruges til at forhindre skabelse af mange shiftobjekter, da feks flere medarbejdere vil resulterer i flere rows med samme s.Id
 
                 using (SqlCommand cmd = new SqlCommand(sqlShifts, _db._connection))
                 {
                     cmd.Parameters.AddWithValue("@Date", date.Date);
                     using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
+                    {                        
                         while (reader.Read())
-                        {
+                        {                            
                             int shiftId = reader.GetInt32(0);
-                            DateTime shiftDate = reader.GetDateTime(1);
-                            ShiftType type = (ShiftType)Convert.ToByte(reader[2]); // Håndterer både TINYINT og INT
-
+                            
                             if (!shiftDictionary.TryGetValue(shiftId, out Shift shift))  //her sørger vi for, at der kun laves et nyt shift objekt hvis det ikke findes i forvejen.
                             {
                                 shift = new Shift
                                 {
                                     Id = shiftId,
-                                    Date = shiftDate,
-                                    Type = type,
-                                    Employees = new List<Employee>()
+                                    Date = (DateTime)reader["Date"],
+                                    Type = (ShiftType)Convert.ToByte(reader["ShiftType"]) //håndterer tinyint og int
+                                    
                                 };
                                 shiftDictionary[shiftId] = shift;
-
-                                // Tilføjer vagten til Dagsplanen 
                                 dayPlan.AddShiftFromDatabase(shift); 
                             }
 
-                            if (!reader.IsDBNull(3))
+                            if (reader["EmpId"]!=DBNull.Value)
                             {
                                 Employee emp = new Employee
                                 {
-                                    Id = reader.GetString(3),
-                                    FirstName = reader.IsDBNull(4) ? "" : reader.GetString(4),
-                                    LastName = reader.IsDBNull(5) ? "" : reader.GetString(5),
-                                    CanActAsLeader = !reader.IsDBNull(6) && reader.GetBoolean(6)
+                                    Id = reader["EmpId"].ToString(),
+                                    FirstName = reader["FirstName"].ToString(),
+                                    LastName = reader["LastName"].ToString(),
+                                    Email = reader["Email"].ToString(),
+                                    PhoneNumber = reader["PhoneNumber"].ToString(),
+                                    Address = reader["Address"] as string,          //When reader["Address"] is DBNull.Value, the "as string" cast safely returns null.
+                                    PaymentInfo = reader["PaymentInfo"] as string,
+                                    CanActAsLeader = (bool)reader["CanActAsLeader"]
                                 };
                                 shift.Employees.Add(emp);
                             }
@@ -94,7 +94,9 @@ namespace PedrosCantinaLibrary.Repository
                 }
                 
             }
-            catch (Exception ex) { }
+            catch (Exception ex){
+                throw new Exception("Fejl ved tilføjelse af shifts og medarbejdere til dagsplanen"+ ex.Message);
+            }
             finally
             {
                 _db.Disconnect();                
