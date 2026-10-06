@@ -16,10 +16,14 @@ namespace PedrosCantina.Pages.Employees
        
         [BindProperty(SupportsGet = true)]  // SupportsGet = true gør, at feltet gribes automatisk fra URL'en (?SearchTerm=Pedro)
         public string? SearchTerm { get; set; }
+
+
         public IndexModel (ICRUD<Employee> repository)
         {
             _repository = repository;
         }
+
+
         public void OnGet()
         {
             var allEmployees = _repository.GetAll();

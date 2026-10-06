@@ -6,7 +6,7 @@ namespace PedrosCantinaLibrary.Model
 {
         public class Shift
     {
-        public int Id { get; set; } // Ændret til int
+        public int Id { get; set; } 
         public DateTime Date { get; set; }
         public ShiftType Type { get; set; }
         public List<Employee> Employees { get; set; } = new List<Employee>();

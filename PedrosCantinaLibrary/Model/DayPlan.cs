@@ -16,7 +16,7 @@ namespace PedrosCantinaLibrary.Model
 
         public DayPlan() { }
 
-        // Kaldes KUN når vi opretter en helt ny plan via koden, IKKE når vi læser fra DB
+        // Kaldes ved oprettelse af ny plan via koden, ikke når der læses fra DB
         public void InitializeShifts()
         {
             _shifts.Clear();
@@ -24,13 +24,13 @@ namespace PedrosCantinaLibrary.Model
             _shifts.Add(new Shift { Date = this.Date, Type = ShiftType.Afternoon });
         }
 
-        // Bruges af vores Repository til at tilføje vagter fra databasen
-        public void LoadShiftFromDatabase(Shift shift)
+        // Bruges af Repository til at tilføje vagter fra databasen
+        public void AddShiftFromDatabase(Shift shift)
         {
             _shifts.Add(shift);
         }
 
-        // Domæne-logik: Er kravene for denne dag opfyldt? (Altid 1 leder, 2-3 personer pr vagt)
+        // Domæne-logik: Er kravene for dagen opfyldt? (Altid 1 leder, 2-3 personer pr vagt)
         public bool IsRequirementsMet()
         {
             if (_shifts.Count != 2) return false;

@@ -54,7 +54,14 @@ namespace PedrosCantina.Pages.Schedule
 
         public IActionResult OnPostCreatePlan()
         {
-            _planRepo.CreateMonthlyPlan(Year, Month);
+            try
+            {
+                _planRepo.CreateMonthlyPlan(Year, Month);
+            }
+            catch(Exception ex)
+            {
+                TempData["FailCreatePlan"] = "Fejl ved oprettelsen af månedsplan - kontakt systemadministrator" + ex.Message;
+            }            
             return RedirectToPage(new { year = Year, month = Month });
         }
     }

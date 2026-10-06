@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace PedrosCantinaLibrary.Repository
@@ -12,8 +13,8 @@ namespace PedrosCantinaLibrary.Repository
         
         public void Connect()
         {
-            var config = new ConfigurationBuilder().AddUserSecrets<DbConnection>().Build();
-            string connectionString = config["ConnectionString"]; 
+            var config = new ConfigurationBuilder().AddUserSecrets(Assembly.GetExecutingAssembly(), optional:true).Build();
+            string connectionString = config["ConnectionString"]; //config virker som en dictionary, hvor vi kan hente vores connectionString
             _connection = new SqlConnection(connectionString);
             _connection.Open();
          
