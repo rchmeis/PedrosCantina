@@ -48,7 +48,7 @@ namespace PedrosCantina.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
-                Employees = _repository.GetAll();
+                OnGet();
                 return Page();
             }
             try
@@ -61,7 +61,6 @@ namespace PedrosCantina.Pages.Employees
             {
                 ModelState.AddModelError(string.Empty, "Kunne ikke gemme medarbejderen. Prøv venligst igen eller kontakt systemadministrator.");
                 throw new Exception("Fejl ved oprettelse af medarbejder i databasen", ex);
-                return Page();
             }
         }
 
@@ -69,6 +68,7 @@ namespace PedrosCantina.Pages.Employees
         {
             if ((!ModelState.IsValid)|| (string.IsNullOrEmpty(id)))
             {
+                OnGet();
                 return Page();
             }
             try
@@ -80,6 +80,7 @@ namespace PedrosCantina.Pages.Employees
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Kunne ikke slette medarbejderen. Prøv venligst igen eller kontakt systemadministrator.");
+                OnGet();
                 return Page();
             }
         }
@@ -88,6 +89,7 @@ namespace PedrosCantina.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
+                OnGet();
                 return Page();
             }
             try
@@ -99,6 +101,7 @@ namespace PedrosCantina.Pages.Employees
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Kunne ikke opdatere medarbejderen. Prøv venligst igen eller kontakt systemadministrator.");
+                OnGet();
                 return Page();
             }
         }

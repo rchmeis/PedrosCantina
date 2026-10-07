@@ -139,7 +139,7 @@ namespace PedrosCantinaLibrary.Repository
             _db.Connect();
             try
             {
-                string deleteQuery = "DELETE FROM Employee WHERE Id = @Id OUTPUT DELETED.*";
+                string deleteQuery = "DELETE FROM Employee OUTPUT DELETED.* WHERE Id = @Id";
                 using (SqlCommand command = new SqlCommand(deleteQuery, _db._connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
