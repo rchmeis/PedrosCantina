@@ -1,52 +1,488 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="da">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PedrosCantina</title>
+    <title>@ViewData["Title"] - Pedro's Cantina</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PedrosCantina.styles.css" asp-append-version="true" />
+
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">PedrosCantina</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <!-- Header med skifergrå baggrund og orange logo-ikon -->
+    <header class="app-header">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center justify-content-between">
+
+                <!-- Venstre side: Logo + Desktop Navigation -->
+                <div class="d-flex align-items-center gap-4">
+                    <a href="/" class="brand-logo">
+                        <i class="bi bi-cup-hot-fill"></i> Pedro's Cantina
+                    </a>
+
+                    <!-- Navigationslinks (Synlige på desktop) -->
+                    <nav class="d-none d-md-flex gap-2 ms-3">
+                        <a href="/Schedule/Monthly" class="nav-link-custom">Vagtplan</a>
+                        <a href="/Employees" class="nav-link-custom">Medarbejdere</a>
+                    </nav>
+                </div>
+
+                <!-- Højre side: Brugerprofil + Mobil Menuknap -->
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-white text-end d-none d-sm-block">
+                        <div class="small fw-bold">Pedro Gonzales</div>
+                        <div class="small text-muted" style="font-size: 0.75rem;">Leder</div>
+                    </div>
+
+                    <div class="avatar-circle">
+                        PG
+                    </div>
+
+                    <!-- Burgermenu-knap (Kun synlig på mobil) -->
+                    <button class="btn text-white d-md-none p-0 border-0 shadow-none ms-1"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#mobileMenu"
+                            aria-controls="mobileMenu"
+                            aria-expanded="false"
+                            aria-label="Åbn menu">
+                        <i class="bi bi-list fs-2"></i>
+                    </button>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - PedrosCantina - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            <!-- Mobil Navigation (Foldes ud på mobil ved klik på burgermenuen) -->
+            <div class="collapse d-md-none mt-2 pt-2 border-top border-white border-opacity-10" id="mobileMenu">
+                <nav class="d-flex flex-column gap-2 pb-2">
+                    <a href="/Schedule/Monthly" class="nav-link-custom w-100">Vagtplan</a>
+                    <a href="/Employees" class="nav-link-custom w-100">Medarbejdere</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <!-- Hovedindhold -->
+    <main class="app-main">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="container-fluid text-center px-4 d-flex justify-content-between align-items-center">
+            <div>
+                &copy; @DateTime.Now.Year - Pedro's Cantina Administration
+            </div>
+            <div>
+                Systemstatus: <span style="color: var(--success);"><i class="bi bi-circle-fill" style="font-size: 0.6rem;"></i> Aktiv</span>
+            </div>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+    /* ==========================================================================
+    Pedro's Cantina - Global Styling & Layout
+    ========================================================================== */
+
+    /* --- 1. FARVEPALETTE & VARIABLER --- */
+    :root {
+    /* Pedro's Cantina Modern Palette */
+    --brand-primary: #e15b2d; /* Varm Terracotta / Rustik orange */
+    --brand-primary-hover: #c44a21;
+    --brand-primary-light: #fef0ea;
+    --nav-bg: #1a1c23; /* Dyb skifergrå / Mørk nav */
+    --page-bg: #f3f4f6; /* Lys grå baggrund */
+
+    --card-bg: #ffffff;
+    --border-color: #e5e7eb;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --success: #10b981;
+    --success-light: #ecfdf5;
+    --warning: #d97706;
+    --warning-light: #fffbeb;
+    --danger: #ef4444;
+    }
+
+    /* --- 2. BASE & FLEXBOX LAYOUT (Sticky Footer) --- */
+    html {
+    height: 100%;
+    font-size: 14px;
+    }
+
+    @@media (min-width: 768px) {
+    html {
+    font-size: 16px;
+    }
+    }
+
+    html, body {
+    height: 100%;
+    }
+
+    body {
+    background-color: var(--page-bg);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh; /* Håndterer mobil-browsers dynamiske adresselinje */
+    margin: 0;
+    }
+
+    .app-main {
+    flex: 1 0 auto; /* Strækker indholdsområdet */
+    padding: 1.5rem 0;
+    }
+
+    .app-footer {
+    flex-shrink: 0;
+    margin-top: auto; /* TVINGER footeren i bunden af skærmen uanset mængden af indhold */
+    border-top: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    padding: 1.25rem 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    }
+
+    /* Container-begrænsning til ultra-wide / store skærme */
+    .app-header .container-fluid,
+    .app-main .container-fluid,
+    .app-footer .container-fluid {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    }
+
+    /* --- 3. GLOBAL HEADER & NAVIGATION --- */
+    .app-header {
+    background-color: var(--nav-bg);
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Brand Logo */
+    .app-header a.brand-logo,
+    .app-header a.brand-logo:visited {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 1.25rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    }
+
+    .app-header a.brand-logo i {
+    color: var(--brand-primary);
+    }
+
+    /* Nav Links */
+    .app-header a.nav-link-custom,
+    .app-header a.nav-link-custom:visited {
+    color: #e5e7eb !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    }
+
+    .app-header a.nav-link-custom:hover {
+    color: #ffffff !important;
+    background-color: rgba(225, 91, 45, 0.2);
+    }
+
+    /* Aktiv Side-fane */
+    .app-header a.nav-link-custom.active {
+    color: #ffffff !important;
+    background-color: var(--brand-primary) !important;
+    font-weight: 600;
+    }
+
+    /* Responsiv Tilpasning af Mobil Udfoldelig Menu */
+    @@media (max-width: 767.98px) {
+    .app-header {
+    padding: 0.6rem 0;
+    }
+
+    .app-header .collapse .nav-link-custom {
+    display: flex;
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    }
+
+    .app-main {
+    padding: 1rem 0;
+    }
+
+    .display-5, .display-6 {
+    font-size: 1.75rem !important;
+    }
+    }
+
+    /* --- 4. CARDS & STAT-WIDGETS --- */
+    .dashboard-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    }
+
+    .stat-widget {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    }
+
+    .stat-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    }
+
+    .stat-icon-primary {
+    background-color: var(--brand-primary-light);
+    color: var(--brand-primary);
+    }
+
+    .stat-icon-warning {
+    background-color: var(--warning-light);
+    color: var(--warning);
+    }
+
+    .stat-icon-success {
+    background-color: var(--success-light);
+    color: var(--success);
+    }
+
+    /* --- 5. KNAPPER --- */
+    .btn {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    }
+
+    .btn-primary-custom {
+    background-color: var(--brand-primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.25rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-primary-custom:hover {
+    background-color: var(--brand-primary-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+    }
+
+    .btn-danger-custom {
+    background-color: var(--danger);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    }
+
+    .btn-danger-custom:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+    }
+
+    /* --- 6. SØGEFELT --- */
+    .search-wrapper {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-wrapper:focus-within {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px var(--brand-primary-light);
+    }
+
+    .search-wrapper input {
+    border: none;
+    background: transparent;
+    box-shadow: none !important;
+    color: var(--text-main);
+    }
+
+    .search-wrapper input:focus {
+    outline: none;
+    }
+
+    /* --- 7. TABELLER (Employees / Day View) --- */
+    .table-modern {
+    margin-bottom: 0;
+    }
+
+    .table-modern thead th {
+    background-color: #f9fafb;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    }
+
+    .table-modern tbody td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-main);
+    }
+
+    .table-modern tbody tr:last-child td {
+    border-bottom: none;
+    }
+
+    .table-modern tbody tr:hover {
+    background-color: var(--brand-primary-light);
+    }
+
+    .table-responsive-custom {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- 8. AVATARS & BADGES --- */
+    .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--nav-bg);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    }
+
+    .badge-role-leader {
+    background-color: var(--warning-light);
+    color: var(--warning);
+    border: 1px solid rgba(217, 119, 6, 0.3);
+    padding: 0.3em 0.7em;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    }
+
+    .badge-role-staff {
+    background-color: var(--page-bg);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 0.3em 0.7em;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    }
+
+    .modal-header-custom {
+    background-color: var(--nav-bg);
+    color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    }
+
+    /* --- 9. KALENDER GRID & RESPONSIVITET (Monthly.cshtml) --- */
+    .calendar-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    }
+
+    .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    min-width: 700px; /* Sikrer at felterne ikke klemmer under 700px, men scrolles på mobil */
+    }
+
+    .weekday-header {
+    font-weight: 700;
+    text-align: center;
+    padding: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    }
+
+    .calendar-day {
+    min-height: 115px;
+    border: 1px solid var(--border-color);
+    transition: all 0.15s ease-in-out;
+    color: var(--text-main);
+    }
+
+    .calendar-day.empty {
+    background-color: transparent !important;
+    border: none !important;
+    }
+
+    .calendar-day:not(.empty):hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: var(--brand-primary) !important;
+    }
+
+    .day-number {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    }
+
+    .shift-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    }
+
+    .morning-dot {
+    background-color: var(--warning);
+    }
+
+    .afternoon-dot {
+    background-color: var(--nav-bg);
+    }
+
+    @@media (max-width: 767.98px) {
+    .calendar-day {
+    min-height: 100px;
+    }
+    }
+
+</style>
