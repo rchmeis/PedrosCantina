@@ -142,7 +142,7 @@
     @if (Model.Plan == null)
     {
         <div class="dashboard-card text-center p-4 p-md-5 my-4">
-            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background-color: var(--brand-primary-light); color: var(--brand-primary);">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; color: var(--brand-primary);">
                 <i class="bi bi-calendar-plus fs-2"></i>
             </div>
             <h4 class="fw-bold mb-2">Ingen vagtplan for denne måned</h4>
@@ -199,18 +199,15 @@
                             bool hasMorning = Model.SelectedEmployee != null && morning != null && morning.Employees.Any(e => e.Id == Model.SelectedEmployee.Id);
                             bool hasAfternoon = Model.SelectedEmployee != null && afternoon != null && afternoon.Employees.Any(e => e.Id == Model.SelectedEmployee.Id);
 
-                            string cardStyle = "";
-                            if (Model.SelectedEmployee == null)
+                            // FÆLLES FARVELOGIK: samme baggrund uanset om en medarbejder er valgt eller ej
+                            string cardStyle = isDayValid
+                                ? "background-color: var(--success-light); border-color: rgba(16, 185, 129, 0.3);"
+                                : "background-color: #fef2f2; border-color: rgba(239, 68, 68, 0.3);";
+
+                                //JUSTERING MED BORDER OMKRING KORTET VED MEDARBEJDER VIEW. 
+                            if (Model.SelectedEmployee != null && (hasMorning || hasAfternoon))
                             {
-                                cardStyle = isDayValid
-                                    ? "background-color: var(--success-light); border-color: rgba(16, 185, 129, 0.3);"
-                                    : "background-color: #fef2f2; border-color: rgba(239, 68, 68, 0.3);";
-                            }
-                            else
-                            {
-                                cardStyle = (hasMorning || hasAfternoon)
-                                    ? "background-color: #f1f5f9; border-color: #cbd5e1;"
-                                    : "background-color: #ffffff; border-color: var(--border-color);";
+                                cardStyle += " border-top: 4px solid var(--brand-primary);";
                             }
 
                             string morningFullNames = morning != null && morning.Employees.Any()
@@ -221,7 +218,12 @@
                                 ? "Aftenvagt: " + string.Join(", ", afternoon.Employees.Select(e => e.FirstName + " " + e.LastName + (e.CanActAsLeader ? " (Leder)" : "")))
                                 : "Aftenvagt: Ingen booket";
 
-                            @if (Model.SelectedEmployee == null)
+                            // FÆLLES CHECK-IKON: bruges i begge views
+                            string checkIconHtml = isDayValid
+                                ? "<i class=\"bi bi-check-circle-fill\" style=\"color: var(--success); font-size: 0.85rem;\" title=\"Bemanding godkendt\"></i>"
+                                : "";
+
+                            if (Model.SelectedEmployee == null)
                             {
                                 <!-- GENERELT VIEW: HELE DAGSKORTET ER ET KLIKBART LINK TIL DAY.CSHTML -->
                                 <a asp-page="./Day" asp-route-date="@dateStr" asp-route-employeeId="@Model.EmployeeId"
@@ -231,9 +233,7 @@
                                     <!-- Øverste række: Dag-tal & Bemandingsstatus -->
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="day-number fw-bold text-dark">@day.Date.Day</span>
-                                        <i class="bi @(isDayValid ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"
-                                           style="color: var(@(isDayValid ? "--success" : "--danger")); font-size: 0.85rem;"
-                                           title="@(isDayValid ? "Bemanding godkendt" : "Mangler bemanding eller vagtansvarlig")"></i>
+                                        @Html.Raw(checkIconHtml)
                                     </div>
 
                                     <!-- Midterste del: Initialer for medarbejdere -->
@@ -320,10 +320,7 @@
                                            class="day-number fw-bold text-decoration-none text-dark" title="Gå til dagsplan">
                                             @day.Date.Day
                                         </a>
-
-                                        <i class="bi @(isDayValid ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"
-                                           style="color: var(@(isDayValid ? "--success" : "--danger")); font-size: 0.85rem;"
-                                           title="@(isDayValid ? "Bemanding godkendt" : "Mangler bemanding eller vagtansvarlig")"></i>
+                                        @Html.Raw(checkIconHtml)
                                     </div>
 
                                     <!-- Midterste del: Initialer (Valgt medarbejder fremhævet i gul cirkel) -->
@@ -343,11 +340,7 @@
 
                                                     if (isSelected)
                                                     {
-                                                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-dark shadow-sm"
-                                                              style="background-color: var(--warning); width: 20px; height: 20px; font-size: 0.65rem;"
-                                                              title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">
-                                                            @initials
-                                                        </span>
+                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">@initials</strong>
                                                     }
                                                     else if (emp.CanActAsLeader)
                                                     {
@@ -384,11 +377,7 @@
 
                                                     if (isSelected)
                                                     {
-                                                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-dark shadow-sm"
-                                                              style="background-color: var(--warning); width: 20px; height: 20px; font-size: 0.65rem;"
-                                                              title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">
-                                                            @initials
-                                                        </span>
+                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">@initials</strong>
                                                     }
                                                     else if (emp.CanActAsLeader)
                                                     {
@@ -426,7 +415,7 @@
 
                                         <!-- Grøn Tilføj (+) Knap (Fast 50% bredde) -->
                                         <div class="dropdown" style="width: 50%;">
-                                            <button class="btn btn-sm btn-success text-white w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
+                                            <button class="btn btn-sm w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
                                                     type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Tilføj til vagt">
                                                 <i class="bi bi-plus-lg" style="font-size: 0.8rem;"></i>
                                             </button>
@@ -468,7 +457,7 @@
                                         @if (hasMorning || hasAfternoon)
                                         {
                                             <div class="dropdown" style="width: 50%;">
-                                                <button class="btn btn-sm btn-danger text-white w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
+                                                <button class="btn btn-sm w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
                                                         type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Fjern fra vagt">
                                                     <i class="bi bi-trash-fill" style="font-size: 0.75rem;"></i>
                                                 </button>
