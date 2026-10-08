@@ -336,13 +336,8 @@
                                                 {
                                                     var emp = empList[idx];
                                                     var initials = GetInitials(emp);
-                                                    bool isSelected = emp.Id == Model.SelectedEmployee.Id;
-
-                                                    if (isSelected)
-                                                    {
-                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">@initials</strong>
-                                                    }
-                                                    else if (emp.CanActAsLeader)
+                                                 
+                                                    if (emp.CanActAsLeader)
                                                     {
                                                         <strong class="fw-bold" title="@emp.FirstName @emp.LastName (Vagtansvarlig)">@initials</strong>
                                                     }
@@ -373,13 +368,8 @@
                                                 {
                                                     var emp = empList[idx];
                                                     var initials = GetInitials(emp);
-                                                    bool isSelected = emp.Id == Model.SelectedEmployee.Id;
-
-                                                    if (isSelected)
-                                                    {
-                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">@initials</strong>
-                                                    }
-                                                    else if (emp.CanActAsLeader)
+                                                 
+                                                    if (emp.CanActAsLeader)
                                                     {
                                                         <strong class="fw-bold" title="@emp.FirstName @emp.LastName (Vagtansvarlig)">@initials</strong>
                                                     }
@@ -415,7 +405,7 @@
 
                                         <!-- Grøn Tilføj (+) Knap (Fast 50% bredde) -->
                                         <div class="dropdown" style="width: 50%;">
-                                            <button class="btn btn-sm w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
+                                            <button class="btn btn-sm w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm action-btn"
                                                     type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Tilføj til vagt">
                                                 <i class="bi bi-plus-lg" style="font-size: 0.8rem;"></i>
                                             </button>
@@ -457,7 +447,7 @@
                                         @if (hasMorning || hasAfternoon)
                                         {
                                             <div class="dropdown" style="width: 50%;">
-                                                <button class="btn btn-sm w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
+                                                <button class="btn btn-sm w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm action-btn"
                                                         type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Fjern fra vagt">
                                                     <i class="bi bi-trash-fill" style="font-size: 0.75rem;"></i>
                                                 </button>
