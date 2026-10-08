@@ -444,8 +444,10 @@
     .calendar-day {
     min-height: 115px;
     border: 1px solid var(--border-color);
-    transition: all 0.15s ease-in-out;
+    /* transition: all 0.15s ease-in-out; */
     color: var(--text-main);
+    position: relative;
+    transition: z-index 0.1s ease;
     }
 
     .calendar-day.empty {
@@ -457,6 +459,15 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
     border-color: var(--brand-primary) !important;
+    }
+
+    .calendar-day:hover,
+    .calendar-day:focus-within {
+    z-index: 100 !important;
+    }
+
+    .calendar-day .dropdown-menu {
+    z-index: 1050 !important;
     }
 
     .day-number {

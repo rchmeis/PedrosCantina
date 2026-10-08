@@ -8,21 +8,24 @@ namespace PedrosCantina.Pages.Employees
     public class IndexModel : PageModel
     {
         private readonly ICRUD<Employee> _repository;
-                
-        public List<Employee> Employees = new List<Employee>();
+        private readonly PlanRepository _planRepository;
+
+        public List<Employee> Employees { get; set; } = new List<Employee>();
+
+        // Dictionary til at holde belastningstabellen: EmployeeId -> (Månedsbelastning, Årsbelastning)
+        public Dictionary<string, (int Monthly, int Yearly)> EmployeeWorkload { get; set; } = new();
 
         [BindProperty]
         public Employee NewEmployee { get; set; } = new Employee();
-       
-        [BindProperty(SupportsGet = true)]  // SupportsGet = true gør, at feltet gribes automatisk fra URL'en (?SearchTerm=Pedro)
+
+        [BindProperty(SupportsGet = true)]
         public string? SearchTerm { get; set; }
 
-
-        public IndexModel (ICRUD<Employee> repository)
+        public IndexModel(ICRUD<Employee> repository, PlanRepository planRepository)
         {
             _repository = repository;
+            _planRepository = planRepository;
         }
-
 
         public void OnGet()
         {
@@ -35,13 +38,26 @@ namespace PedrosCantina.Pages.Employees
                     (e.LastName != null && e.LastName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) ||
                     (e.Email != null && e.Email.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) ||
                     (e.PhoneNumber != null && e.PhoneNumber.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
-                ).ToList();
+                ).OrderBy(e => e.Id).ToList();
             }
             else
             {
-                Employees = allEmployees;
+                Employees = allEmployees.OrderBy(e => e.Id).ToList();
             }
 
+            // Hent belastning for hver medarbejder i listen for indeværende måned og år
+            int currentYear = DateTime.Now.Year;
+            int currentMonth = DateTime.Now.Month;
+
+            foreach (var emp in Employees)
+            {
+                if (!string.IsNullOrEmpty(emp.Id))
+                {
+                    int monthly = _planRepository.GetEmployeeWorkload(emp.Id, currentYear, currentMonth);
+                    int yearly = _planRepository.GetEmployeeWorkload(emp.Id, currentYear, null);
+                    EmployeeWorkload[emp.Id] = (monthly, yearly);
+                }
+            }
         }
 
         public IActionResult OnPostCreate()
@@ -52,7 +68,7 @@ namespace PedrosCantina.Pages.Employees
                 return Page();
             }
             try
-            {                
+            {
                 _repository.Create(NewEmployee);
                 TempData["SuccessMessage"] = "Medarbejder oprettet succesfuldt!";
                 return RedirectToPage("/Employees/Index");
@@ -66,7 +82,7 @@ namespace PedrosCantina.Pages.Employees
 
         public IActionResult OnPostDelete(string id)
         {
-            if ((!ModelState.IsValid)|| (string.IsNullOrEmpty(id)))
+            if (!ModelState.IsValid || string.IsNullOrEmpty(id))
             {
                 OnGet();
                 return Page();

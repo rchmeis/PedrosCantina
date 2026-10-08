@@ -52,7 +52,7 @@ else
             @foreach (var shift in Model.DayPlan.Shifts)
             {
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100 shadow-sm border-top border-4 @(shift.IsValid() ? "border-success" : "border-danger")">
+                    <div class="card h-100 shadow-sm border-top border-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 @(shift.Type == PedrosCantinaLibrary.Model.ShiftType.Morning ? "☀️ Formiddagsvagt" : "🌙 Aftenvagt")

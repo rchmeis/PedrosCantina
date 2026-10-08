@@ -8,9 +8,34 @@
     var prevYear = Model.Month == 1 ? Model.Year - 1 : Model.Year;
 }
 
+<style>
+    /* Sikrer at dropdown-menuer altid ligger oven på underliggende kalenderdage */
+    .calendar-day {
+        position: relative;
+        transition: z-index 0.1s ease;
+    }
+
+        .calendar-day:hover,
+        .calendar-day:focus-within {
+            z-index: 100 !important;
+        }
+
+        .calendar-day .dropdown-menu {
+            z-index: 1050 !important;
+        }
+</style>
+
 <div class="container-fluid px-3 px-md-4 py-4">
 
-    <!-- Fejlmeddelelse ved oprettelse -->
+    <!-- Meddelelser & Advarsler -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     @if (TempData["FailCreatePlan"] != null)
     {
         <div class="alert border-0 shadow-sm mb-4 d-flex align-items-center" style="background-color: var(--warning-light); color: var(--warning);" role="alert">
@@ -19,67 +44,103 @@
             <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+    @if (TempData["SearchWarning"] != null)
+    {
+        <div class="alert border-0 shadow-sm mb-4 d-flex align-items-center alert-dismissible fade show" style="background-color: var(--warning-light); color: var(--warning);" role="alert">
+            <i class="bi bi-search me-2 fs-5"></i>
+            <div>@TempData["SearchWarning"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <!-- Sidenavigation & Belastnings-bokse -->
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-        <div>
-            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+    <!-- Header & Navigation -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-stretch gap-3 mb-4">
+
+        <!-- Venstre sektion -->
+        <div class="d-flex flex-column justify-content-between gap-2 flex-grow-1" style="max-width: 520px; width: 100%;">
+            <div class="d-flex align-items-center flex-wrap gap-2">
                 <h2 class="fw-bold mb-0" style="color: var(--text-main);">Vagtplan: @Model.Month / @Model.Year</h2>
                 @if (Model.SelectedEmployee != null)
                 {
-                    <span class="badge-role-staff">
-                        <i class="bi bi-funnel-fill me-1" style="color: var(--brand-primary);"></i> Filtreret: @Model.SelectedEmployee.FirstName @Model.SelectedEmployee.LastName
+                    <span class="badge-role-staff d-inline-flex align-items-center gap-2 ps-2 pe-1 py-1 shadow-sm" style="border: 1px solid rgba(225, 91, 45, 0.2);">
+                        <i class="bi bi-funnel-fill" style="color: var(--brand-primary);"></i>
+                        <span>Filtreret: @Model.SelectedEmployee.FirstName @Model.SelectedEmployee.LastName</span>
+                        <a asp-page="./Monthly" asp-route-year="@Model.Year" asp-route-month="@Model.Month"
+                           class="d-inline-flex align-items-center justify-content-center text-muted text-decoration-none rounded-circle bg-white-hover"
+                           style="width: 20px; height: 20px; transition: all 0.2s ease;"
+                           title="Nulstil filter">
+                            <i class="bi bi-x-lg" style="font-size: 0.75rem;"></i>
+                        </a>
                     </span>
                 }
             </div>
-            <p class="text-muted mb-0 small">Klik på en dag for at administrere vagter eller se bemanding.</p>
+
+            <p class="text-muted mb-0 small">Søg en medarbejder eller klik på en dag for at administrere vagter.</p>
+
+            <form method="get" class="d-flex align-items-center w-100 mt-1">
+                <input type="hidden" name="year" value="@Model.Year" />
+                <input type="hidden" name="month" value="@Model.Month" />
+                <div class="search-wrapper px-2 py-1 w-100">
+                    <i class="bi bi-search text-muted me-2"></i>
+                    <input type="text"
+                           name="searchTerm"
+                           value="@Model.SearchTerm"
+                           placeholder="Søg navn eller tlf..."
+                           class="form-control form-control-sm py-1 border-0 bg-transparent" />
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.SelectedEmployee != null)
+                    {
+                        <a asp-page="./Monthly" asp-route-year="@Model.Year" asp-route-month="@Model.Month" class="text-muted ms-1 text-decoration-none" title="Nulstil søgning">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </a>
+                    }
+                </div>
+            </form>
         </div>
 
-        <!-- Månedsnavigation & Medarbejder-belastning -->
-        <div class="d-flex align-items-center gap-2 gap-md-3 flex-wrap">
-            <div class="btn-group shadow-sm w-100 w-sm-auto">
-                <a asp-page="./Monthly" asp-route-year="@prevYear" asp-route-month="@prevMonth" asp-route-employeeId="@Model.EmployeeId" class="btn btn-light border px-3 flex-fill text-center">
-                    <i class="bi bi-chevron-left me-1"></i> Forrige
-                </a>
-                <a asp-page="./Monthly" asp-route-year="@nextYear" asp-route-month="@nextMonth" asp-route-employeeId="@Model.EmployeeId" class="btn btn-light border px-3 flex-fill text-center">
-                    Næste <i class="bi bi-chevron-right ms-1"></i>
-                </a>
-            </div>
-
+        <!-- Højre sektion -->
+        <div class="d-flex flex-column align-items-lg-end justify-content-between ms-lg-auto gap-3">
             @if (Model.SelectedEmployee != null)
             {
-                <div class="d-flex align-items-center gap-2 flex-wrap w-100 w-sm-auto">
-                    <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 border bg-white shadow-sm flex-fill">
-                        <div class="stat-icon-box stat-icon-primary" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 border bg-white shadow-sm" style="min-width: 150px;">
+                        <div class="stat-icon-box stat-icon-primary" style="width: 40px; height: 40px; font-size: 1.1rem; border-radius: 10px;">
                             <i class="bi bi-calendar-event"></i>
                         </div>
                         <div>
-                            <span class="text-muted small d-block lh-1" style="font-size: 0.75rem;">Vagter mdr.</span>
-                            <strong class="fs-6" style="color: var(--text-main);">@Model.MonthlyWorkload</strong>
+                            <span class="text-muted small d-block lh-1 mb-1" style="font-size: 0.72rem; font-weight: 500;">Vagter mdr.</span>
+                            <strong class="fs-5 lh-1" style="color: var(--text-main);">@Model.MonthlyWorkload</strong>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 border bg-white shadow-sm flex-fill">
-                        <div class="stat-icon-box stat-icon-warning" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                    <div class="d-flex align-items-center gap-3 px-3 py-2 rounded-3 border bg-white shadow-sm" style="min-width: 150px;">
+                        <div class="stat-icon-box stat-icon-warning" style="width: 40px; height: 40px; font-size: 1.1rem; border-radius: 10px;">
                             <i class="bi bi-bar-chart-fill"></i>
                         </div>
                         <div>
-                            <span class="text-muted small d-block lh-1" style="font-size: 0.75rem;">Vagter år</span>
-                            <strong class="fs-6" style="color: var(--text-main);">@Model.YearlyWorkload</strong>
+                            <span class="text-muted small d-block lh-1 mb-1" style="font-size: 0.72rem; font-weight: 500;">Vagter år</span>
+                            <strong class="fs-5 lh-1" style="color: var(--text-main);">@Model.YearlyWorkload</strong>
                         </div>
                     </div>
-
-                    <a asp-page="./Monthly" asp-route-year="@Model.Year" asp-route-month="@Model.Month" class="btn btn-outline-secondary btn-sm" title="Nulstil filter">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
                 </div>
             }
+            else
+            {
+                <div></div>
+            }
+
+            <div class="btn-group shadow-sm">
+                <a asp-page="./Monthly" asp-route-year="@prevYear" asp-route-month="@prevMonth" asp-route-employeeId="@Model.EmployeeId" asp-route-searchTerm="@Model.SearchTerm" class="btn btn-light border px-3 py-2">
+                    <i class="bi bi-chevron-left me-1"></i> Forrige
+                </a>
+                <a asp-page="./Monthly" asp-route-year="@nextYear" asp-route-month="@nextMonth" asp-route-employeeId="@Model.EmployeeId" asp-route-searchTerm="@Model.SearchTerm" class="btn btn-light border px-3 py-2">
+                    Næste <i class="bi bi-chevron-right ms-1"></i>
+                </a>
+            </div>
         </div>
     </div>
 
     @if (Model.Plan == null)
     {
-        <!-- Tom tilstand -->
         <div class="dashboard-card text-center p-4 p-md-5 my-4">
             <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background-color: var(--brand-primary-light); color: var(--brand-primary);">
                 <i class="bi bi-calendar-plus fs-2"></i>
@@ -98,11 +159,9 @@
     }
     else
     {
-        <!-- Kalender Container med Responsiv Scroll -->
         <div class="dashboard-card p-2 p-md-3">
             <div class="calendar-responsive-wrapper">
                 <div class="calendar-grid">
-                    <!-- Ugedag overskrifter -->
                     <div class="weekday-header">Man</div>
                     <div class="weekday-header">Tir</div>
                     <div class="weekday-header">Ons</div>
@@ -116,6 +175,14 @@
                         DateTime firstDay = new DateTime(Model.Year, Model.Month, 1);
                         int startDayOfWeek = firstDay.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)firstDay.DayOfWeek;
 
+                        string GetInitials(PedrosCantinaLibrary.Model.Employee e)
+                        {
+                            if (e == null) return "";
+                            string first = !string.IsNullOrEmpty(e.FirstName) ? e.FirstName[0].ToString() : "";
+                            string last = !string.IsNullOrEmpty(e.LastName) ? e.LastName[0].ToString() : "";
+                            return (first + last).ToUpper();
+                        }
+
                         for (int i = 1; i < startDayOfWeek; i++)
                         {
                             <div class="calendar-day empty"></div>
@@ -126,126 +193,322 @@
                             string dateStr = day.Date.ToString("yyyy-MM-dd");
                             bool isDayValid = day.IsRequirementsMet();
 
-                            string cardStyle = "";
-                            bool hasMorning = false;
-                            bool hasAfternoon = false;
+                            var morning = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
+                            var afternoon = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
 
+                            bool hasMorning = Model.SelectedEmployee != null && morning != null && morning.Employees.Any(e => e.Id == Model.SelectedEmployee.Id);
+                            bool hasAfternoon = Model.SelectedEmployee != null && afternoon != null && afternoon.Employees.Any(e => e.Id == Model.SelectedEmployee.Id);
+
+                            string cardStyle = "";
                             if (Model.SelectedEmployee == null)
                             {
-                                if (isDayValid)
-                                {
-                                    cardStyle = "background-color: var(--success-light); border-color: rgba(16, 185, 129, 0.3);";
-                                }
-                                else
-                                {
-                                    cardStyle = "background-color: #fef2f2; border-color: rgba(239, 68, 68, 0.3);";
-                                }
+                                cardStyle = isDayValid
+                                    ? "background-color: var(--success-light); border-color: rgba(16, 185, 129, 0.3);"
+                                    : "background-color: #fef2f2; border-color: rgba(239, 68, 68, 0.3);";
                             }
                             else
                             {
-                                var mShift = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
-                                var aShift = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
-
-                                if (mShift != null) hasMorning = mShift.Employees.Any(e => e.Id == Model.EmployeeId);
-                                if (aShift != null) hasAfternoon = aShift.Employees.Any(e => e.Id == Model.EmployeeId);
-
-                                if (hasMorning || hasAfternoon)
-                                {
-                                    cardStyle = "background-color: var(--brand-primary-light); border-color: rgba(225, 91, 45, 0.4);";
-                                }
-                                else
-                                {
-                                    cardStyle = "background-color: #ffffff; border-color: var(--border-color);";
-                                }
+                                cardStyle = (hasMorning || hasAfternoon)
+                                    ? "background-color: #f1f5f9; border-color: #cbd5e1;"
+                                    : "background-color: #ffffff; border-color: var(--border-color);";
                             }
 
-                            <a asp-page="./Day" asp-route-date="@dateStr" asp-route-employeeId="@Model.EmployeeId"
-                               class="calendar-day text-decoration-none rounded-3 p-2 d-flex flex-column position-relative"
-                               style="@cardStyle">
+                            string morningFullNames = morning != null && morning.Employees.Any()
+                                ? "Morgenvagt: " + string.Join(", ", morning.Employees.Select(e => e.FirstName + " " + e.LastName + (e.CanActAsLeader ? " (Leder)" : "")))
+                                : "Morgenvagt: Ingen booket";
 
-                                <!-- Øverste række: Dag-tal & Grønt godkendt-ikon i højre hjørne -->
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <span class="day-number fw-bold">@day.Date.Day</span>
-                                    @if (Model.SelectedEmployee == null && isDayValid)
-                                    {
-                                        <i class="bi bi-check-circle-fill" style="color: var(--success); font-size: 0.85rem;" title="Bemanding godkendt"></i>
-                                    }
+                            string afternoonFullNames = afternoon != null && afternoon.Employees.Any()
+                                ? "Aftenvagt: " + string.Join(", ", afternoon.Employees.Select(e => e.FirstName + " " + e.LastName + (e.CanActAsLeader ? " (Leder)" : "")))
+                                : "Aftenvagt: Ingen booket";
+
+                            @if (Model.SelectedEmployee == null)
+                            {
+                                <!-- GENERELT VIEW: HELE DAGSKORTET ER ET KLIKBART LINK TIL DAY.CSHTML -->
+                                <a asp-page="./Day" asp-route-date="@dateStr" asp-route-employeeId="@Model.EmployeeId"
+                                   class="calendar-day text-decoration-none rounded-3 p-2 d-flex flex-column"
+                                   style="@cardStyle">
+
+                                    <!-- Øverste række: Dag-tal & Bemandingsstatus -->
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="day-number fw-bold text-dark">@day.Date.Day</span>
+                                        <i class="bi @(isDayValid ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"
+                                           style="color: var(@(isDayValid ? "--success" : "--danger")); font-size: 0.85rem;"
+                                           title="@(isDayValid ? "Bemanding godkendt" : "Mangler bemanding eller vagtansvarlig")"></i>
+                                    </div>
+
+                                    <!-- Midterste del: Initialer for medarbejdere -->
+                                    <div class="my-auto d-flex flex-column text-start py-1 px-1" style="font-size: 0.75rem; line-height: 1.4;">
+                                        <!-- Morgenvagt -->
+                                        <div class="text-truncate" style="color: var(--text-main);" title="@morningFullNames">
+                                            <i class="bi bi-sun me-1" style="color: var(--warning);"></i>
+                                            @if (morning != null && morning.Employees.Any())
+                                            {
+                                                var empList = morning.Employees.ToList();
+                                                for (int idx = 0; idx < empList.Count; idx++)
+                                                {
+                                                    var emp = empList[idx];
+                                                    var initials = GetInitials(emp);
+                                                    if (emp.CanActAsLeader)
+                                                    {
+                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName (Vagtansvarlig)">@initials</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-normal opacity-85">@initials</span>
+                                                    }
+                                                    if (idx < empList.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="fst-italic opacity-50">-</span>
+                                            }
+                                        </div>
+
+                                        <!-- Aftenvagt -->
+                                        <div class="text-truncate" style="color: var(--text-main);" title="@afternoonFullNames">
+                                            <i class="bi bi-moon me-1" style="color: var(--nav-bg);"></i>
+                                            @if (afternoon != null && afternoon.Employees.Any())
+                                            {
+                                                var empList = afternoon.Employees.ToList();
+                                                for (int idx = 0; idx < empList.Count; idx++)
+                                                {
+                                                    var emp = empList[idx];
+                                                    var initials = GetInitials(emp);
+                                                    if (emp.CanActAsLeader)
+                                                    {
+                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName (Vagtansvarlig)">@initials</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-normal opacity-85">@initials</span>
+                                                    }
+                                                    if (idx < empList.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="fst-italic opacity-50">-</span>
+                                            }
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(day.Note))
+                                        {
+                                            <span class="text-muted fst-italic mt-1 border-top pt-1"
+                                                  style="font-size: 0.68rem; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"
+                                                  title="@day.Note">
+                                                <i class="bi bi-chat-left-text me-1"></i>@day.Note
+                                            </span>
+                                        }
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <!-- MEDARBEJDER VIEW: DIV CONTAINER MED INTERAKTIVE KNAPPER -->
+                                <div class="calendar-day rounded-3 p-2 d-flex flex-column" style="@cardStyle">
+
+                                    <!-- Øverste række: Klikbart Dag-tal & Bemandingsstatus -->
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <a asp-page="./Day" asp-route-date="@dateStr" asp-route-employeeId="@Model.EmployeeId"
+                                           class="day-number fw-bold text-decoration-none text-dark" title="Gå til dagsplan">
+                                            @day.Date.Day
+                                        </a>
+
+                                        <i class="bi @(isDayValid ? "bi-check-circle-fill" : "bi-exclamation-circle-fill")"
+                                           style="color: var(@(isDayValid ? "--success" : "--danger")); font-size: 0.85rem;"
+                                           title="@(isDayValid ? "Bemanding godkendt" : "Mangler bemanding eller vagtansvarlig")"></i>
+                                    </div>
+
+                                    <!-- Midterste del: Initialer (Valgt medarbejder fremhævet i gul cirkel) -->
+                                    <div class="my-auto d-flex flex-column text-start py-1 px-1" style="font-size: 0.75rem; line-height: 1.4;">
+
+                                        <!-- Morgenvagt -->
+                                        <div class="text-truncate" style="color: var(--text-main);" title="@morningFullNames">
+                                            <i class="bi bi-sun me-1" style="color: var(--warning);"></i>
+                                            @if (morning != null && morning.Employees.Any())
+                                            {
+                                                var empList = morning.Employees.ToList();
+                                                for (int idx = 0; idx < empList.Count; idx++)
+                                                {
+                                                    var emp = empList[idx];
+                                                    var initials = GetInitials(emp);
+                                                    bool isSelected = emp.Id == Model.SelectedEmployee.Id;
+
+                                                    if (isSelected)
+                                                    {
+                                                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-dark shadow-sm"
+                                                              style="background-color: var(--warning); width: 20px; height: 20px; font-size: 0.65rem;"
+                                                              title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">
+                                                            @initials
+                                                        </span>
+                                                    }
+                                                    else if (emp.CanActAsLeader)
+                                                    {
+                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName (Vagtansvarlig)">@initials</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-normal opacity-85">@initials</span>
+                                                    }
+
+                                                    if (idx < empList.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="fst-italic opacity-50">-</span>
+                                            }
+                                        </div>
+
+                                        <!-- Aftenvagt -->
+                                        <div class="text-truncate" style="color: var(--text-main);" title="@afternoonFullNames">
+                                            <i class="bi bi-moon me-1" style="color: var(--nav-bg);"></i>
+                                            @if (afternoon != null && afternoon.Employees.Any())
+                                            {
+                                                var empList = afternoon.Employees.ToList();
+                                                for (int idx = 0; idx < empList.Count; idx++)
+                                                {
+                                                    var emp = empList[idx];
+                                                    var initials = GetInitials(emp);
+                                                    bool isSelected = emp.Id == Model.SelectedEmployee.Id;
+
+                                                    if (isSelected)
+                                                    {
+                                                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-dark shadow-sm"
+                                                              style="background-color: var(--warning); width: 20px; height: 20px; font-size: 0.65rem;"
+                                                              title="@emp.FirstName @emp.LastName @(emp.CanActAsLeader ? "(Vagtansvarlig)" : "")">
+                                                            @initials
+                                                        </span>
+                                                    }
+                                                    else if (emp.CanActAsLeader)
+                                                    {
+                                                        <strong class="fw-bold" title="@emp.FirstName @emp.LastName (Vagtansvarlig)">@initials</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-normal opacity-85">@initials</span>
+                                                    }
+
+                                                    if (idx < empList.Count - 1)
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="fst-italic opacity-50">-</span>
+                                            }
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(day.Note))
+                                        {
+                                            <span class="text-muted fst-italic mt-1 border-top pt-1"
+                                                  style="font-size: 0.68rem; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"
+                                                  title="@day.Note">
+                                                <i class="bi bi-chat-left-text me-1"></i>@day.Note
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <!-- Nederste del: Knapper låst til 50% bredde hver -->
+                                    <div class="mt-auto pt-1 d-flex gap-1 w-100">
+
+                                        <!-- Grøn Tilføj (+) Knap (Fast 50% bredde) -->
+                                        <div class="dropdown" style="width: 50%;">
+                                            <button class="btn btn-sm btn-success text-white w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
+                                                    type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Tilføj til vagt">
+                                                <i class="bi bi-plus-lg" style="font-size: 0.8rem;"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.75rem;">
+                                                @if (morning != null)
+                                                {
+                                                    <li>
+                                                        <form method="post" asp-page-handler="AddShift">
+                                                            <input type="hidden" name="shiftId" value="@morning.Id" />
+                                                            <input type="hidden" name="employeeId" value="@Model.SelectedEmployee.Id" />
+                                                            <input type="hidden" name="year" value="@Model.Year" />
+                                                            <input type="hidden" name="month" value="@Model.Month" />
+                                                            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                                            <button type="submit" class="dropdown-item py-1">
+                                                                <i class="bi bi-sun text-warning me-1"></i> Morgenvagt
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                }
+                                                @if (afternoon != null)
+                                                {
+                                                    <li>
+                                                        <form method="post" asp-page-handler="AddShift">
+                                                            <input type="hidden" name="shiftId" value="@afternoon.Id" />
+                                                            <input type="hidden" name="employeeId" value="@Model.SelectedEmployee.Id" />
+                                                            <input type="hidden" name="year" value="@Model.Year" />
+                                                            <input type="hidden" name="month" value="@Model.Month" />
+                                                            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                                            <button type="submit" class="dropdown-item py-1">
+                                                                <i class="bi bi-moon me-1"></i> Aftenvagt
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+
+                                        <!-- Rød Slet (Skraldespand) Knap (Fast 50% bredde når til stede) -->
+                                        @if (hasMorning || hasAfternoon)
+                                        {
+                                            <div class="dropdown" style="width: 50%;">
+                                                <button class="btn btn-sm btn-danger text-white w-100 py-1 px-0 d-flex align-items-center justify-content-center shadow-sm"
+                                                        type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Fjern fra vagt">
+                                                    <i class="bi bi-trash-fill" style="font-size: 0.75rem;"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.75rem;">
+                                                    @if (hasMorning && morning != null)
+                                                    {
+                                                        <li>
+                                                            <form method="post" asp-page-handler="RemoveShift">
+                                                                <input type="hidden" name="shiftId" value="@morning.Id" />
+                                                                <input type="hidden" name="employeeId" value="@Model.SelectedEmployee.Id" />
+                                                                <input type="hidden" name="year" value="@Model.Year" />
+                                                                <input type="hidden" name="month" value="@Model.Month" />
+                                                                <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                                                <button type="submit" class="dropdown-item text-danger py-1">
+                                                                    <i class="bi bi-sun text-warning me-1"></i> Morgenvagt
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    }
+                                                    @if (hasAfternoon && afternoon != null)
+                                                    {
+                                                        <li>
+                                                            <form method="post" asp-page-handler="RemoveShift">
+                                                                <input type="hidden" name="shiftId" value="@afternoon.Id" />
+                                                                <input type="hidden" name="employeeId" value="@Model.SelectedEmployee.Id" />
+                                                                <input type="hidden" name="year" value="@Model.Year" />
+                                                                <input type="hidden" name="month" value="@Model.Month" />
+                                                                <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                                                <button type="submit" class="dropdown-item text-danger py-1">
+                                                                    <i class="bi bi-moon me-1"></i> Aftenvagt
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
-
-                                @if (Model.SelectedEmployee != null)
-                                {
-                                    if (hasMorning || hasAfternoon)
-                                    {
-                                        <div class="mt-auto d-flex gap-1 justify-content-center pb-1">
-                                            @if (hasMorning)
-                                            {
-                                                <div class="shift-dot morning-dot" title="Morgenvagt (09-14)"></div>
-                                            }
-                                            @if (hasAfternoon)
-                                            {
-                                                <div class="shift-dot afternoon-dot" title="Aftenvagt (14-19)"></div>
-                                            }
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    if (isDayValid)
-                                    {
-                                        var morning = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
-                                        var afternoon = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
-
-                                        int morningCount = morning?.Employees.Count ?? 0;
-                                        int afternoonCount = afternoon?.Employees.Count ?? 0;
-
-                                        <div class="mt-auto d-flex flex-column text-start pb-1 px-1" style="font-size: 0.72rem; line-height: 1.35; color: #065f46;">
-                                            <span class="fw-medium text-truncate">
-                                                <i class="bi bi-sun me-1"></i>Morgen: @morningCount
-                                            </span>
-                                            <span class="fw-medium text-truncate">
-                                                <i class="bi bi-moon me-1"></i>Aften: @afternoonCount
-                                            </span>
-
-                                            @if (!string.IsNullOrWhiteSpace(day.Note))
-                                            {
-                                                <span class="text-muted fst-italic mt-1 border-top pt-1"
-                                                      style="font-size: 0.68rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"
-                                                      title="@day.Note">
-                                                    <i class="bi bi-chat-left-text me-1"></i>@day.Note
-                                                </span>
-                                            }
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="mt-auto d-flex flex-column text-start" style="font-size: 0.72rem; line-height: 1.3; color: var(--danger);">
-                                            <span class="fw-bold border-bottom pb-1 mb-1" style="border-color: rgba(239, 68, 68, 0.2) !important;">Mangler:</span>
-                                            @{
-                                                var m = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Morning);
-                                                var a = day.Shifts.FirstOrDefault(s => s.Type == PedrosCantinaLibrary.Model.ShiftType.Afternoon);
-
-                                                if (m == null || m.Employees.Count < 2)
-                                                {
-                                                    <span class="text-truncate fw-medium"><i class="bi bi-sun me-1"></i>Morgen</span>
-                                                }
-                                                else if (!m.Employees.Any(e => e.CanActAsLeader))
-                                                {
-                                                    <span class="text-truncate fw-medium"><i class="bi bi-sun me-1"></i>Morgen (Leder)</span>
-                                                }
-
-                                                if (a == null || a.Employees.Count < 2)
-                                                {
-                                                    <span class="text-truncate fw-medium"><i class="bi bi-moon me-1"></i>Aften</span>
-                                                }
-                                                else if (!a.Employees.Any(e => e.CanActAsLeader))
-                                                {
-                                                    <span class="text-truncate fw-medium"><i class="bi bi-moon me-1"></i>Aften (Leder)</span>
-                                                }
-                                            }
-                                        </div>
-                                    }
-                                }
-                            </a>
+                            }
                         }
                     }
                 </div>
