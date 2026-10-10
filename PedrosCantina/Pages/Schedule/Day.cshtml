@@ -15,21 +15,21 @@ else
 {
     <div class="container mt-4">
         <!-- Overskrift & Navigation -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-start align-md-items-center mb-4 gap-3">
             <div>
                 <h2>Dagsplan: @Model.DayPlan.Date.ToString("dddd d. MMMM yyyy", new System.Globalization.CultureInfo("da-DK"))</h2>
                 <a asp-page="/Schedule/Monthly" asp-route-year="@Model.DayPlan.Year" asp-route-month="@Model.DayPlan.Month" class="btn btn-outline-secondary btn-sm mt-1">
                     &larr; Tilbage til Månedsplan
                 </a>
             </div>
-            <div>
+            <div class="align-self-start align-self-md-auto">
                 @if (Model.DayPlan.IsRequirementsMet())
                 {
-                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle"></i> Alle bemandingskrav er opfyldt</span>
+                    <span class="badge bg-success fs-6 text-wrap text-start"><i class="bi bi-check-circle"></i> Alle bemandingskrav er opfyldt</span>
                 }
                 else
                 {
-                    <span class="badge bg-warning text-dark fs-6"><i class="bi bi-exclamation-triangle"></i> Kravene er IKKE opfyldt endnu</span>
+                    <span class="badge bg-warning text-dark fs-6 text-wrap text-start"><i class="bi bi-exclamation-triangle"></i> Kravene er IKKE opfyldt</span>
                 }
             </div>
         </div>
@@ -42,7 +42,7 @@ else
                         <label asp-for="Note" class="form-label fw-bold">Note for dagen:</label>
                         <input asp-for="Note" class="form-control" placeholder="f.eks. Særlig event, ekstra travlt..." />
                     </div>
-                    <button type="submit" class="btn btn-sm btn-primary">Gem Note</button>
+                    <button type="submit" class="btn btn-sm btn-light border">Gem Note</button>
                 </form>
             </div>
         </div>
@@ -55,7 +55,7 @@ else
                     <div class="card h-100 shadow-sm border-top border-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
-                                @(shift.Type == PedrosCantinaLibrary.Model.ShiftType.Morning ? "☀️ Formiddagsvagt" : "🌙 Aftenvagt")
+                                @(shift.Type == PedrosCantinaLibrary.Model.ShiftType.Morning ? "☀️ Morgenvagt" : "🌙 Aftenvagt")
                             </h5>
                             @if (shift.IsValid())
                             {
@@ -83,7 +83,7 @@ else
                                                 <strong>@emp.FirstName @emp.LastName</strong>
                                                 @if (emp.CanActAsLeader)
                                                 {
-                                                    <span class="badge bg-info text-dark ms-1">Leder</span>
+                                                    <span class="badge-role-leader">Leder</span>
                                                 }
                                             </div>
                                             <form method="post" asp-page-handler="RemoveEmployee"
@@ -114,8 +114,9 @@ else
                                     </select>
                                 </div>
                                 <div class="col-4">
-                                    <button type="submit" class="btn btn-sm btn-success w-100">Tilføj</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-success w-100">Tilføj</button>
                                 </div>
+                               
                             </form>
                         </div>
                     </div>
