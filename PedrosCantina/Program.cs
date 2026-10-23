@@ -11,30 +11,32 @@ namespace PedrosCantina
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Add services to the container*******************************************************************
             builder.Services.AddRazorPages(options =>
             {
-                // Kræver at man er logget ind som standard på alle sider
-                options.Conventions.AuthorizeFolder("/");
-
-                // Gør det tilladt at tilgå login og opret uden at være logget ind
-                options.Conventions.AllowAnonymousToPage("/Account/SignIn");
+                
+                options.Conventions.AuthorizeFolder("/"); // Kræver at man er logget ind som standard på alle sider
+                options.Conventions.AllowAnonymousToPage("/Account/SignIn"); // Gør det tilladt at tilgå login og opret uden at være logget ind
                 options.Conventions.AllowAnonymousToPage("/Account/SignUp");
             });
+           
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+             .AddCookie(options =>
+             {
+                 options.LoginPath = "/Account/SignIn"; // Hvor brugeren sendes hen, hvis ikke de er logget ind
+                 options.ExpireTimeSpan = TimeSpan.FromMinutes(15); // Hvor lang tid cookien lever
+             });
+
             //AddScoped opretter én instans per HTTP-forspørgsel,
-            builder.Services.AddScoped<DbConnection>();
+            builder.Services.AddScoped<DbConnection>();//gør <T> tilgængelig via dependency injektion på tværs a siderne  
             builder.Services.AddScoped<PlanRepository>();
-            builder.Services.AddScoped<ShiftRepository>();          //gør repo tilgængelig via dependency injektion på tværs a siderne      
+            builder.Services.AddScoped<ShiftRepository>();    
             builder.Services.AddScoped<ICRUD<Employee>, EmployeeRepository>(); // Dependency Injection: Når nogen beder om ICRUD<Employee>, giver vi dem EmployeeRepository
             builder.Services.AddScoped<IUserRepository<User>, UserRepository>();
             builder.Services.AddScoped<UserService>();
             
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(options =>
-            {
-                options.LoginPath = "/Account/SignIn"; // Hvor brugeren sendes hen, hvis ikke de er logget ind
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Hvor lang tid cookien lever
-            });
+            //SERVICES END_____________________________________________________________________________________
+         
 
 
             var app = builder.Build();
@@ -49,13 +51,13 @@ namespace PedrosCantina
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
+            app.UseRouting();       //Finner ud af, hvilken .cshtml-side browseren rent faktisk prøver at ramme.
 
-            app.UseAuthentication(); //huske denne. Hvem er brugeren?
-            app.UseAuthorization();  //Hvad må brugeren?
+            app.UseAuthentication(); //Tjekker cookien og finder ud af: "Hvem er det". Sætter User-objektet
+            app.UseAuthorization();  //Hvad må brugeren? (har brugeren lov til at være på siden)
 
             app.MapStaticAssets();
-            app.MapRazorPages()
+            app.MapRazorPages()     //Finner ud af, hvilken .cshtml-side browseren rent faktisk prøver at ramme.
                .WithStaticAssets();
 
             app.Run();

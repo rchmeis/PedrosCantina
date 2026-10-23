@@ -43,10 +43,10 @@ namespace PedrosCantinaLibrary.Servcices
             {
                 return null;
             }
-            //check om adgangskoden matcher. 
+            //check input password mod userPW. returnerer Success, Failed, ell SuccessRehashNeeded
             PasswordVerificationResult result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHashed, password);
 
-            //returner brugeren hvis koden er korrekt, ellers null. 
+            //returner brugeren hvis PW er korrekt, ellers null. 
             return result == PasswordVerificationResult.Success ? user : null;
            
         }
