@@ -1,0 +1,91 @@
+﻿@page
+@model PedrosCantina.Pages.Account.SignUpModel
+@{
+    ViewData["Title"] = "Opret bruger";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+
+            <!-- Logo & Overskrift -->
+            <div class="text-center mb-4">
+                <div class="stat-icon-box stat-icon-primary mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.75rem;">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h1 class="fw-bold fs-3" style="color: var(--text-main);">Pedro's Cantina</h1>
+                <p class="text-muted small">Opret ny bruger i systemet</p>
+            </div>
+
+            <!-- Formular-kort -->
+            <div class="dashboard-card p-4 p-md-4">
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger py-2 small mb-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> @Model.ErrorMessage
+                    </div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label small fw-bold">Brugernavn</label>
+                        <input asp-for="Username" class="form-control" placeholder="Mindst 6 tegn" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label small fw-bold">Adgangskode</label>
+                        <input type="password" asp-for="Password" class="form-control" placeholder="Mindst 10 tegn" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="EmployeeId" class="form-label small fw-bold">Medarbejder ID</label>
+                        <input asp-for="EmployeeId" class="form-control" placeholder="Indtast dit medarbejder-ID" />
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 justify-content-center py-2">
+                        <span>Opret bruger</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Skift til login -->
+            <div class="text-center mt-3">
+                <p class="text-muted small mb-0">
+                    Har du allerede en bruger? <a asp-page="/Account/SignIn" class="fw-semibold text-decoration-none" style="color: var(--brand-primary);">Log ind her</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* @page
+@model PedrosCantina.Pages.Account.SignUpModel
+@{
+    ViewData["Title"] = "Opret bruger";
+}
+
+<h1>Opret ny bruger</h1>
+
+<form method="post">
+    <div style="color:red;">@Model.ErrorMessage</div>
+    <div>
+        <label asp-for="Username">Brugernavn:</label>
+        <input asp-for="Username" />
+    </div>
+    <div>
+        <label asp-for="Password">Adgangskode:</label>
+        <input type="password" asp-for="Password" />
+    </div>
+    <div>
+        <label asp-for="EmployeeId">ID</label>
+        <input asp-for="EmployeeId"/>
+    </div>
+   
+    <button type="submit">Opret bruger</button>
+</form>
+
+<p>Har du allerede en bruger? <a asp-page="/SignIn">Log ind her</a></p> *@

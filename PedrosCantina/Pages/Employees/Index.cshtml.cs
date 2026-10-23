@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PedrosCantinaLibrary.Model;
@@ -5,6 +6,7 @@ using PedrosCantinaLibrary.Repository;
 
 namespace PedrosCantina.Pages.Employees
 {
+    [Authorize(Roles = "Leder")]
     public class IndexModel : PageModel
     {
         private readonly ICRUD<Employee> _repository;
@@ -27,8 +29,9 @@ namespace PedrosCantina.Pages.Employees
             _planRepository = planRepository;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
+            
             var allEmployees = _repository.GetAll();
 
             if (!string.IsNullOrWhiteSpace(SearchTerm))
@@ -58,6 +61,7 @@ namespace PedrosCantina.Pages.Employees
                     EmployeeWorkload[emp.Id] = (monthly, yearly);
                 }
             }
+            return Page();
         }
 
         public IActionResult OnPostCreate()

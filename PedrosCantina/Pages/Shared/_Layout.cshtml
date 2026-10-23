@@ -28,12 +28,48 @@
                     <!-- Navigationslinks (Synlige på desktop) -->
                     <nav class="d-none d-md-flex gap-2 ms-3">
                         <a href="/Schedule/Monthly" class="nav-link-custom">Vagtplan</a>
-                        <a href="/Employees" class="nav-link-custom">Medarbejdere</a>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Leder"))
+                            {
+                                <a href="/Employees" class="nav-link-custom">Medarbejdere</a>
+                            };
                     </nav>
                 </div>
 
-                <!-- Højre side: Brugerprofil + Mobil Menuknap -->
+                <!-- Højre side: Brugerprofil + Mobil Menuknap SKAL MÅSKE JUSTERES -->
                 <div class="d-flex align-items-center gap-3">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <!-- Tekstsektion med Log ud-knap og Rolle -->
+                        <div class="text-white text-end d-none d-sm-block">
+                            <!-- Usynlig form så Log ud udføres som en post-handling -->
+                            <form method="post" asp-page="/Account/Logout" class="d-inline">
+                                <button type="submit"
+                                        class="btn p-0 border-0 bg-transparent text-white small fw-bold text-decoration-none shadow-none"
+                                        style="font-size: inherit;">
+                                    Log ud
+                                </button>
+                            </form>
+
+                            <!-- Viser om brugeren er Leder eller Medarbejder -->
+                            <div class="small text-muted" style="font-size: 0.75rem;">
+                                @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                            </div>
+                        </div>
+
+                        <!-- Cirkel med dynamiske initialer -->
+                        <div class="avatar-circle" style="color:var(--brand-primary)">
+                            @User.FindFirst("initials")?.Value
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Vises kun hvis man IKKE er logget ind -->
+                        <div class="text-white text-end d-none d-sm-block">
+                            <a asp-page="Account/SignIn" class="text-white small fw-bold text-decoration-none">Log ind</a>
+                        </div>
+                    }
+                </div>
+                @* <div class="d-flex align-items-center gap-3">
                     <div class="text-white text-end d-none d-sm-block">
                         <div class="small fw-bold">Pedro Gonzales</div>
                         <div class="small text-muted" style="font-size: 0.75rem;">Leder</div>
@@ -41,7 +77,7 @@
 
                     <div class="avatar-circle" style="color:var(--brand-primary)">
                         PG
-                    </div>
+                    </div> *@
 
                     <!-- Burgermenu-knap (Kun synlig på mobil) -->
                     <button class="btn text-white d-md-none p-0 border-0 shadow-none ms-1"

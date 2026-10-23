@@ -9,7 +9,7 @@ namespace PedrosCantinaLibrary.Repository
 {
     public class DbConnection
     {
-        internal SqlConnection _connection;
+        
         
         //public void Connect()
         //{
@@ -20,7 +20,7 @@ namespace PedrosCantinaLibrary.Repository
          
         //}
 
-        public void Connect()
+        public SqlConnection Connect()
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory) // Tells the app where to look for files
@@ -34,21 +34,10 @@ namespace PedrosCantinaLibrary.Repository
             {
                 throw new Exception("Database ConnectionString is missing from configuration!");
             }
-
-            _connection = new SqlConnection(connectionString);
-            _connection.Open();
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            return connection;
         }
 
-
-
-
-        public void Disconnect()
-        {
-            if (_connection != null && _connection.State == System.Data.ConnectionState.Open)
-            {
-                _connection.Close();
-            }
-          
-        }
     }
 }

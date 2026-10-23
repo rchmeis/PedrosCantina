@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PedrosCantinaLibrary.Model;
@@ -6,6 +7,7 @@ using System;
 
 namespace PedrosCantina.Pages.Employees
 {
+    [Authorize(Roles = "Leader")]
     public class EditModel : PageModel
     {
         private readonly ICRUD<Employee> _repository;
@@ -21,6 +23,7 @@ namespace PedrosCantina.Pages.Employees
         // Modtager ID direkte fra URL'en (f.eks. /Employees/Edit/123-abc. Routing!)
         public IActionResult OnGet(string id)
         {
+           
             if (string.IsNullOrEmpty(id))
             {
                 TempData["ErrorMessage"] = "Ugyldigt medarbejder-ID.";

@@ -13,155 +13,118 @@ namespace PedrosCantinaLibrary.Repository
         public Employee Create(Employee item)
         {
 
-            _db.Connect();
+            using SqlConnection connection = _db.Connect();
             try
             {               
                 string query = $"INSERT INTO Employee (Id, FirstName, LastName, Email, PhoneNumber, Address, PaymentInfo, CanActAsLeader) " +
                             "VALUES (@Id, @FirstName, @LastName, @Email, @PhoneNumber, @Address, @PaymentInfo, @CanActAsLeader);";
-                using (SqlCommand command = new SqlCommand(query, _db._connection))
-                {
-                    string validId = string.IsNullOrWhiteSpace(item.Id) ? Guid.NewGuid().ToString() : item.Id;
-                    command.Parameters.AddWithValue("@Id", validId);
+                using SqlCommand command = new SqlCommand(query, connection);                
+                
+                string validId = string.IsNullOrWhiteSpace(item.Id) ? Guid.NewGuid().ToString() : item.Id;
+                command.Parameters.AddWithValue("@Id", validId);
 
-                    AddParameters(command, item);                
-
-                    int rowsAffected = command.ExecuteNonQuery();
-                    //if (rowsAffected <= 0)
-                    //{
-                    //    throw new Exception("Ingen rækker blev indsat i Employee-tabellen.");
-                    //}                    
-                }
+                AddParameters(command, item); 
+                command.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
                 throw new Exception("Fejl ved oprettelse af medarbejder i databasen", ex);
-            }
-            finally
-            {
-                _db.Disconnect();
-            }
+            } 
             return item;
         }
 
         public List<Employee> GetAll()
         {
             List<Employee> employees = new List<Employee>();
-            _db.Connect();
+            using SqlConnection connection = _db.Connect();
             try
             {
                 string query = "SELECT * FROM Employee";
-                using (SqlCommand command = new SqlCommand(query, _db._connection))
+                using SqlCommand command = new SqlCommand(query, connection);
+                using SqlDataReader reader = command.ExecuteReader();
+                
+                while (reader.Read())
                 {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            employees.Add(MapEmployee(reader));
-                        }
-                    }
-                }
+                    employees.Add(MapEmployee(reader));
+                }  
             }
             catch (Exception ex)
             {
                 throw new Exception("Fejl ved hentning af medarbejdere fra databasen", ex);
-            }
-            finally
-            {
-                _db.Disconnect();
-            }
-
+            }     
             return employees;
         }
         public Employee GetById(string id)
         {
-            _db.Connect();
+            using SqlConnection connection = _db.Connect();
             try
             {
                 string query = "SELECT * FROM Employee WHERE Id = @Id";
-                using (SqlCommand command = new SqlCommand(query, _db._connection))
+                using SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Id", id);
+
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    command.Parameters.AddWithValue("@Id", id);
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return MapEmployee(reader);
-                        }                        
-                    }
-                }
+                    return MapEmployee(reader);
+                }      
             }
             catch (Exception ex)
             {
                 throw new Exception($"Fejl ved hentning af medarbejder med Id '{id}'.", ex);
             }
-            finally
-            {
-                _db.Disconnect();
-            }
+         
             return null;
         }
         public Employee Update(string id, Employee item)
         {
-            _db.Connect();
+            using SqlConnection connection = _db.Connect();
             try
             {
                 string updateQuery = "UPDATE Employee " +
                                 "SET FirstName = @FirstName, LastName = @LastName, Email = @Email, PhoneNumber = @PhoneNumber, Address = @Address, PaymentInfo = @PaymentInfo, CanActAsLeader = @CanActAsLeader " +
                                 "OUTPUT INSERTED.* " +
                                 "WHERE Id = @Id";
-                using (SqlCommand command = new SqlCommand(updateQuery, _db._connection))
-                {
-                    command.Parameters.AddWithValue("@Id", id);
-                    AddParameters(command, item);
+                using SqlCommand command = new SqlCommand(updateQuery, connection);
+                command.Parameters.AddWithValue("@Id", id);
+                AddParameters(command, item);
 
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return MapEmployee(reader);
-                        }
-                        throw new Exception($"Opdatering mislykkedes. Medarbejder med Id '{id}' blev ikke fundet");
-                    }
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return MapEmployee(reader);
                 }
+                throw new Exception($"Opdatering mislykkedes. Medarbejder med Id '{id}' blev ikke fundet");
+                    
             }
             catch (Exception ex)
             {
                 throw new Exception($"Fejl ved opdatering af medarbejder med Id '{id}' i databasen", ex);
             }
-            finally
-            {
-                _db.Disconnect();
-            }
-
+        
         }
         public Employee Delete(string id)
         {
-            _db.Connect();
+            using SqlConnection connection = _db.Connect();
             try
             {
                 string deleteQuery = "DELETE FROM Employee OUTPUT DELETED.* WHERE Id = @Id";
-                using (SqlCommand command = new SqlCommand(deleteQuery, _db._connection))
-                {
-                    command.Parameters.AddWithValue("@Id", id);
+                using SqlCommand command = new SqlCommand(deleteQuery, connection);
+                command.Parameters.AddWithValue("@Id", id);
 
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            return MapEmployee(reader);
-                        }
-                        throw new Exception($"Sletning mislykkedes. Medarbejder med Id '{id}' blev ikke fundet");
-                    }
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return MapEmployee(reader);
                 }
+                throw new Exception($"Sletning mislykkedes. Medarbejder med Id '{id}' blev ikke fundet");
+                
             }
             catch (Exception ex)
             {
                 throw new Exception($"Fejl ved sletning af medarbejder med Id '{id}' i databasen", ex);
             }
-            finally
-            {
-                _db.Disconnect();
-            }
+            
         }
 
 

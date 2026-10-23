@@ -14,12 +14,12 @@ namespace PedrosCantinaLibrary.Repository
         public DayPlan? GetDayPlan(DateTime date)
         {
             DayPlan? dayPlan = null;
-            _db.Connect();
+            using SqlConnection connection = _db.Connect();
 
             try
             {
                 string sqlDay = "SELECT Date, Year, Month, Note FROM DayPlan WHERE Date = @Date";
-                using (SqlCommand cmd = new SqlCommand(sqlDay, _db._connection))
+                using (SqlCommand cmd = new SqlCommand(sqlDay, connection))
                 {
                     cmd.Parameters.AddWithValue("@Date", date.Date);
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -52,7 +52,7 @@ namespace PedrosCantinaLibrary.Repository
 
                 Dictionary<int, Shift> shiftDictionary = new Dictionary<int, Shift>();         //Dictionary bruges til at forhindre skabelse af mange shiftobjekter, da feks flere medarbejdere vil resulterer i flere rows med samme s.Id
 
-                using (SqlCommand cmd = new SqlCommand(sqlShifts, _db._connection))
+                using (SqlCommand cmd = new SqlCommand(sqlShifts, connection))
                 {
                     cmd.Parameters.AddWithValue("@Date", date.Date);
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -97,22 +97,20 @@ namespace PedrosCantinaLibrary.Repository
             catch (Exception ex){
                 throw new Exception("Fejl ved tilføjelse af shifts og medarbejdere til dagsplanen", ex);
             }
-            finally
-            {
-                _db.Disconnect();                
-            }
+         
             return dayPlan;
         }
 
 
         public bool AddEmployeeToShift(int shiftId, string employeeId)
         {
+            using SqlConnection connection = _db.Connect();
             try
             {
-                _db.Connect();
+               
                 string sql = "INSERT INTO ShiftEmployee (ShiftId, EmployeeId) VALUES (@ShiftId, @EmpId)";
 
-                using (SqlCommand cmd = new SqlCommand(sql, _db._connection))
+                using (SqlCommand cmd = new SqlCommand(sql, connection))
                 {
                     cmd.Parameters.AddWithValue("@ShiftId", shiftId);
                     cmd.Parameters.AddWithValue("@EmpId", employeeId);
@@ -125,70 +123,55 @@ namespace PedrosCantinaLibrary.Repository
             {               
                 return false;
             }
-            finally
-            {
-                _db.Disconnect();
-            }
+            
         }
 
 
         public bool RemoveEmployeeFromShift(int shiftId, string employeeId)
         {
-            bool success = false;
-            _db.Connect();
+           
+            using SqlConnection connection = _db.Connect();
             try
             {
                 string sql = "DELETE FROM ShiftEmployee WHERE ShiftId = @ShiftId AND EmployeeId = @EmpId";
-                using (SqlCommand cmd = new SqlCommand(sql, _db._connection))
-                {
-                    cmd.Parameters.AddWithValue("@ShiftId", shiftId);
-                    cmd.Parameters.AddWithValue("@EmpId", employeeId);                    
-                    cmd.ExecuteNonQuery();
+                using SqlCommand cmd = new SqlCommand(sql, connection);
+                
+                cmd.Parameters.AddWithValue("@ShiftId", shiftId);
+                cmd.Parameters.AddWithValue("@EmpId", employeeId);                    
+                cmd.ExecuteNonQuery();
              
-                    return success = true;
-                }
+                return true;
+                
             }
             catch(Exception ex)
             {
                 throw new Exception("Fejl under sletning af medarbejder fra vagt", ex);
             }
-            finally
-            {
-                _db.Disconnect();
-            }           
+        
         }
 
         
         public bool UpdateDayNote(DateTime date, string? note)
         {
-            _db.Connect();
-            bool success = false;
+            using SqlConnection connection = _db.Connect();            
 
             try
             {
-                string sql = "UPDATE DayPlan SET Note = @Note WHERE Date = @Date";
-                using (SqlCommand cmd = new SqlCommand(sql, _db._connection))
-                {
-                    cmd.Parameters.AddWithValue("@Note", (object?)note ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@Date", date.Date);
+            string sql = "UPDATE DayPlan SET Note = @Note WHERE Date = @Date";
+            using SqlCommand cmd = new SqlCommand(sql, connection);
+                
+                cmd.Parameters.AddWithValue("@Note", (object?)note ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Date", date.Date);
                     
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    if(rowsAffected == 0)
-                    {
-                        throw new Exception($"Fejl ved opdatering af dagsnote - Ingen dagsplan fundet for datoen {date.ToShortDateString()}");
-                    }   
-                   
-                    return success=true;
-                }
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return true;
+                
             }
             catch (Exception ex)
             {
                 throw new Exception("Fejl ved opdatering af dagsnote", ex);
             }
-            finally
-            {
-                _db.Disconnect();
-            }
+            
         }
     }
 }

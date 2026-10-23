@@ -74,27 +74,30 @@
                     </span>
                 }
             </div>
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Leder"))
+            {
+                <p class="text-muted mb-0 small">Søg en medarbejder eller klik på en dag for at administrere vagter.</p>
 
-            <p class="text-muted mb-0 small">Søg en medarbejder eller klik på en dag for at administrere vagter.</p>
-
-            <form method="get" class="d-flex align-items-center w-100 mt-1">
-                <input type="hidden" name="year" value="@Model.Year" />
-                <input type="hidden" name="month" value="@Model.Month" />
-                <div class="search-wrapper px-2 py-1 w-100">
-                    <i class="bi bi-search text-muted me-2"></i>
-                    <input type="text"
-                           name="searchTerm"
-                           value="@Model.SearchTerm"
-                           placeholder="Søg navn eller tlf..."
-                           class="form-control form-control-sm py-1 border-0 bg-transparent" />
-                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.SelectedEmployee != null)
-                    {
-                        <a asp-page="./Monthly" asp-route-year="@Model.Year" asp-route-month="@Model.Month" class="text-muted ms-1 text-decoration-none" title="Nulstil søgning">
-                            <i class="bi bi-x-circle-fill"></i>
-                        </a>
-                    }
-                </div>
-            </form>
+                <form method="get" class="d-flex align-items-center w-100 mt-1">
+                    <input type="hidden" name="year" value="@Model.Year" />
+                    <input type="hidden" name="month" value="@Model.Month" />
+                    <div class="search-wrapper px-2 py-1 w-100">
+                        <i class="bi bi-search text-muted me-2"></i>
+                        <input type="text"
+                               name="searchTerm"
+                               value="@Model.SearchTerm"
+                               placeholder="Søg navn eller tlf..."
+                               class="form-control form-control-sm py-1 border-0 bg-transparent" />
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.SelectedEmployee != null)
+                        {
+                            <a asp-page="./Monthly" asp-route-year="@Model.Year" asp-route-month="@Model.Month" class="text-muted ms-1 text-decoration-none" title="Nulstil søgning">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </a>
+                        }
+                    </div>
+                </form>
+            }
+            
         </div>
 
         <!-- Højre sektion -->
@@ -148,13 +151,17 @@
             <h4 class="fw-bold mb-2">Ingen vagtplan for denne måned</h4>
             <p class="text-muted mb-4" style="max-width: 460px; margin: 0 auto;">Der er endnu ikke oprettet en vagtplan for @Model.Month/@Model.Year. Klik nedenfor for at starte en ny plan.</p>
 
-            <form method="post" asp-page-handler="CreatePlan">
-                <input type="hidden" name="Year" value="@Model.Year" />
-                <input type="hidden" name="Month" value="@Model.Month" />
-                <button type="submit" class="btn btn-primary-custom px-4 py-2">
-                    <i class="bi bi-magic me-2"></i> Opret Vagtplan Nu
-                </button>
-            </form>
+            @if(User.Identity.IsAuthenticated && User.IsInRole("Leder"))
+            {
+                <form method="post" asp-page-handler="CreatePlan">
+                    <input type="hidden" name="Year" value="@Model.Year" />
+                    <input type="hidden" name="Month" value="@Model.Month" />
+                    <button type="submit" class="btn btn-primary-custom px-4 py-2">
+                        <i class="bi bi-magic me-2"></i> Opret Vagtplan Nu
+                    </button>
+                </form>
+            }
+           
         </div>
     }
     else

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PedrosCantinaLibrary.Model;
@@ -5,6 +6,7 @@ using PedrosCantinaLibrary.Repository;
 
 namespace PedrosCantina.Pages.Schedule
 {
+    
     public class MonthlyModel : PageModel
     {
         private readonly PlanRepository _planRepo;
@@ -74,6 +76,7 @@ namespace PedrosCantina.Pages.Schedule
         }
 
         // HANDLER: Tilføj medarbejder direkte via ShiftId
+        [Authorize(Roles = "Leader")]
         public IActionResult OnPostAddShift(int shiftId, string employeeId, int year, int month, string? searchTerm)
         {
             if (shiftId > 0 && !string.IsNullOrEmpty(employeeId))
@@ -95,6 +98,7 @@ namespace PedrosCantina.Pages.Schedule
         }
 
         // HANDLER: Fjern medarbejder direkte via ShiftId
+        [Authorize(Roles = "Leader")]
         public IActionResult OnPostRemoveShift(int shiftId, string employeeId, int year, int month, string? searchTerm)
         {
             if (shiftId > 0 && !string.IsNullOrEmpty(employeeId))
@@ -108,6 +112,7 @@ namespace PedrosCantina.Pages.Schedule
             return RedirectToPage(new { year = year, month = month, employeeId = employeeId, searchTerm = searchTerm });
         }
 
+        [Authorize(Roles = "Leader")]
         public IActionResult OnPostCreatePlan()
         {
             try

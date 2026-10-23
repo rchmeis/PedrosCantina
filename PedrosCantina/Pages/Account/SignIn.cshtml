@@ -1,0 +1,79 @@
+﻿@page
+@model PedrosCantina.Pages.Account.SignInModel
+@{
+    ViewData["Title"] = "Log ind";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+
+            <!-- Logo & Overskrift -->
+            <div class="text-center mb-4">
+                <div class="stat-icon-box stat-icon-primary mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.75rem;">
+                    <i class="bi bi-cup-hot-fill"></i>
+                </div>
+                <h1 class="fw-bold fs-3" style="color: var(--text-main);">Pedro's Cantina</h1>
+                <p class="text-muted small">Log ind på administrationen</p>
+            </div>
+
+            <!-- Formular-kort -->
+            <div class="dashboard-card p-4 p-md-4">
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger py-2 small mb-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> @Model.ErrorMessage
+                    </div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label small fw-bold">Brugernavn</label>
+                        <input asp-for="Username" class="form-control" placeholder="Indtast brugernavn" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label small fw-bold">Adgangskode</label>
+                        <input type="password" asp-for="Password" class="form-control" placeholder="Indtast adgangskode" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 justify-content-center py-2">
+                        <span>Log ind</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Skift til oprettelse -->
+            <div class="text-center mt-3">
+                <p class="text-muted small mb-0">
+                    Ingen bruger endnu? <a asp-page="/Account/SignUp" class="fw-semibold text-decoration-none" style="color: var(--brand-primary);">Opret dig her</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@* @page
+@model PedrosCantina.Pages.Account.SignInModel
+@{
+    ViewData["Title"] = "Log ind";
+}
+
+<h1>Log ind</h1>
+
+<form method="post">
+    <div style="color:red;">@Model.ErrorMessage</div>
+    <div>
+        <label>Brugernavn:</label>
+        <input asp-for="Username" />
+    </div>
+    <div>
+        <label>Adgangskode:</label>
+        <input type="password" asp-for="Password" />
+    </div>
+    <button type="submit">Log ind</button>
+</form>
+
+<p>Ingen bruger endnu? <a asp-page="/Account/SignUp">Opret dig her</a></p> *@

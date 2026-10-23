@@ -17,7 +17,7 @@
 
         <!-- Tekst & Knapper (z-index 2 så teksten ligger øverst) -->
         <div class="position-relative" style="z-index: 2;">
-            <h1 class="fw-bold display-5 mb-2">Velkommen, Pedro</h1>
+            <h1 class="fw-bold display-5 mb-2">Velkommen, @User.FindFirstValue(ClaimTypes.GivenName)</h1>
             <p class="text-white-50 lead mb-4" style="max-width: 600px; font-size: 1.1rem;">
                 Få det fulde overblik over månedens vagter, dagens bemanding og medarbejdere på ét samlet sted.
             </p>

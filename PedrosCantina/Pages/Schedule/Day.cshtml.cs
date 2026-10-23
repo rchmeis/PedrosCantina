@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PedrosCantinaLibrary.Model;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 
 namespace PedrosCantina.Pages.Schedule
 {
+    [Authorize(Roles = "Leder")]
     public class DayModel : PageModel
     {
         private readonly ShiftRepository _shiftRepo;
@@ -29,6 +31,7 @@ namespace PedrosCantina.Pages.Schedule
 
         public IActionResult OnGet(DateTime date)
         {
+           
             if (date == DateTime.MinValue)
             {
                 date = DateTime.Today;
@@ -48,6 +51,7 @@ namespace PedrosCantina.Pages.Schedule
         }
 
         // Tilføj medarbejder til en specifik vagt
+        [Authorize(Roles = "Leader")]
         public IActionResult OnPostAddEmployee(DateTime date, int shiftId)
         {
             if (!string.IsNullOrEmpty(SelectedEmployeeId))
@@ -59,6 +63,7 @@ namespace PedrosCantina.Pages.Schedule
         }
 
         // Fjern medarbejder fra en specifik vagt
+        [Authorize(Roles = "Leader")]
         public IActionResult OnPostRemoveEmployee(DateTime date, int shiftId, string employeeId)
         {
             _shiftRepo.RemoveEmployeeFromShift(shiftId, employeeId);
@@ -66,6 +71,7 @@ namespace PedrosCantina.Pages.Schedule
         }
 
         // Gem dagsnoten
+        [Authorize(Roles = "Leader")]
         public IActionResult OnPostSaveNote(DateTime date)
         {
             _shiftRepo.UpdateDayNote(date, Note);
