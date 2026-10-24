@@ -51,8 +51,9 @@ namespace PedrosCantina.Pages.Account
                 new Claim("initials", initials) // F.eks. "PG"
             };
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            //Log ind og udsted cookien i browseren
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme); //Her fortæller du systemet, hvilken type sikkerhedssystem der har godkendt dette ID-kort. Ved at skrive CookieAuthenticationDefaults siger du: "Dette ID-kort er udstedt via vores Cookie-system"
+
+            //nu logges ind og udsted cookien i browseren!
             //Denne linje fortæller ASP.NET Core, at brugeren nu er godkendt, og udsteder sikkerheds-cookien til browseren.
             await HttpContext.SignInAsync(
                  CookieAuthenticationDefaults.AuthenticationScheme,

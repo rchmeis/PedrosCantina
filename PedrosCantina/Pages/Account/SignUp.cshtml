@@ -61,31 +61,3 @@
         </div>
     </div>
 </div>
-
-@* @page
-@model PedrosCantina.Pages.Account.SignUpModel
-@{
-    ViewData["Title"] = "Opret bruger";
-}
-
-<h1>Opret ny bruger</h1>
-
-<form method="post">
-    <div style="color:red;">@Model.ErrorMessage</div>
-    <div>
-        <label asp-for="Username">Brugernavn:</label>
-        <input asp-for="Username" />
-    </div>
-    <div>
-        <label asp-for="Password">Adgangskode:</label>
-        <input type="password" asp-for="Password" />
-    </div>
-    <div>
-        <label asp-for="EmployeeId">ID</label>
-        <input asp-for="EmployeeId"/>
-    </div>
-   
-    <button type="submit">Opret bruger</button>
-</form>
-
-<p>Har du allerede en bruger? <a asp-page="/SignIn">Log ind her</a></p> *@

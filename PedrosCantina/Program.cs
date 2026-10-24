@@ -20,7 +20,7 @@ namespace PedrosCantina
                 options.Conventions.AllowAnonymousToPage("/Account/SignUp");
             });
            
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) //konfigurerer cookies
              .AddCookie(options =>
              {
                  options.LoginPath = "/Account/SignIn"; // Hvor brugeren sendes hen, hvis ikke de er logget ind

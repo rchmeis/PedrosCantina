@@ -55,25 +55,3 @@
 </div>
 
 
-@* @page
-@model PedrosCantina.Pages.Account.SignInModel
-@{
-    ViewData["Title"] = "Log ind";
-}
-
-<h1>Log ind</h1>
-
-<form method="post">
-    <div style="color:red;">@Model.ErrorMessage</div>
-    <div>
-        <label>Brugernavn:</label>
-        <input asp-for="Username" />
-    </div>
-    <div>
-        <label>Adgangskode:</label>
-        <input type="password" asp-for="Password" />
-    </div>
-    <button type="submit">Log ind</button>
-</form>
-
-<p>Ingen bruger endnu? <a asp-page="/Account/SignUp">Opret dig her</a></p> *@

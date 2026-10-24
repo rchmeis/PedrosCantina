@@ -58,24 +58,22 @@ namespace PedrosCantinaLibrary.Repository
                     WHERE u.Username = @username
                     """;
 
-                using (SqlCommand cmdGetUser = new SqlCommand(getUser, connection))
+                using SqlCommand cmdGetUser = new SqlCommand(getUser, connection);                
+                cmdGetUser.Parameters.AddWithValue("@username", username);
+
+                using SqlDataReader reader = cmdGetUser.ExecuteReader();
+                if (reader.Read()) 
                 {
-                    cmdGetUser.Parameters.AddWithValue("@username", username);
-
-                    using SqlDataReader reader = cmdGetUser.ExecuteReader();
-                    if (reader.Read()) 
+                    User user = new User
                     {
-                        User user = new User
-                        {
-                            Id = Convert.ToInt32(reader["UserId"]),
-                            Username = reader["Username"].ToString(),
-                            PasswordHashed = reader["PasswordHashed"].ToString(),
-                            Employee = MapEmployee(reader)
-                        };
+                        Id = Convert.ToInt32(reader["UserId"]),
+                        Username = reader["Username"].ToString(),
+                        PasswordHashed = reader["PasswordHashed"].ToString(),
+                        Employee = MapEmployee(reader)
+                    };
 
-                        return user;
-                    }
-                }
+                    return user;
+                }                
 
                 // Hvis læseren ikke finder noget, returneres null automatisk
                 return null;

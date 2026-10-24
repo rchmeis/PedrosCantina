@@ -16,18 +16,6 @@ namespace PedrosCantina.Pages.Account
             // Send lederen tilbage til login-siden
             return RedirectToPage("/Account/SignIn");
         }
-        //    public void OnGet()
-        //    {
-        //    }
 
-        //public class LogoutModel : PageModel
-        //{
-        //    public async Task<IActionResult> OnGetAsync()
-        //    {
-        //        // Slet cookien fra browseren ved et GET-klik (f.eks. et link)
-        //        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        //        return RedirectToPage("/Account/SignIn");
-        //    }
-        //}
     }
 }
