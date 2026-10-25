@@ -40,7 +40,6 @@ namespace PedrosCantina
 
 
             builder.Services.AddAuthorization(options =>  //tilføj og konfiguer autorisation (politikker)
-
             {
                 options.AddPolicy("LederPolicy", policy => policy.RequireRole("Leder"));
                 //options.AddPolicy("LederMedarbejderPolicy", policy => policy.RequireRole("leder", "medarbejder")); overflødig
