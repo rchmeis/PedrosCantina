@@ -12,6 +12,10 @@ namespace PedrosCantina.Pages.Schedule
         private readonly PlanRepository _planRepo;
         private readonly ShiftRepository _shiftRepo;
         private readonly ICRUD<Employee> _employeeRepo;
+        
+        // Denne property fanger automatisk ?accessDenied=true fra URL'en. (se program.cs, authetication)
+        [BindProperty(SupportsGet = true)]
+        public bool AccessDenied { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public int Year { get; set; } = DateTime.Now.Year;

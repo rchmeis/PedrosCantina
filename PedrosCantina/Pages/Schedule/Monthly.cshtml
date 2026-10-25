@@ -28,6 +28,14 @@
 <div class="container-fluid px-3 px-md-4 py-4">
 
     <!-- Meddelelser & Advarsler -->
+    @if (Model.AccessDenied)
+    {
+        <div class="alert border-0 shadow-sm mb-4 d-flex align-items-center" style="background-color: var(--warning-light); color: var(--warning);" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+            <div>Hov - Du forsøgte at tilgå en side, som kræver leder-rettigheder, og blev derfor sendt tilbage.</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success border-0 shadow-sm mb-4 d-flex align-items-center alert-dismissible fade show" role="alert">

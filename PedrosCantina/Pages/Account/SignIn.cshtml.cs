@@ -37,7 +37,7 @@ namespace PedrosCantina.Pages.Account
                 return Page();
             }
             
-            string input = user.Employee.CanActAsLeader ? "Leder" : "Medarbejder";
+            string role = user.Employee.CanActAsLeader ? "Leder" : "Medarbejder";
             string initials = user.Employee.FirstName[0].ToString() + user.Employee.LastName[0].ToString();
 
             //Opret "claims" (identitets-informationer om brugeren)
@@ -46,7 +46,7 @@ namespace PedrosCantina.Pages.Account
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, input),// input manuelt sat til "Leder" eller "Medarbejder"
+                new Claim(ClaimTypes.Role, role),// role manuelt sat til "Leder" eller "Medarbejder"
                 new Claim(ClaimTypes.GivenName, user.Employee.FirstName),
                 new Claim("initials", initials) // F.eks. "PG"
             };
